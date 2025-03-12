@@ -1,4 +1,4 @@
-package es.upm.sos.biblioteca.modelos;
+package es.upm.sos.biblioteca.models;
 import java.io.Serializable;
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,7 +20,7 @@ public class Prestamos {
 
     @OneToOne
     @JoinColumn(name = "isbn", referencedColumnName = "isbn")
-    private String iIsbn;
+    private Libros libro;
 
     @Column(name = "fecha_prestamo")
     private Data dPrestamo;

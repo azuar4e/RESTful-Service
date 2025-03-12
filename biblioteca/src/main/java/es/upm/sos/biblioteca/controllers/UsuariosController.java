@@ -4,9 +4,7 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import es.upm.sos.biblioteca.modelos.Usuarios;
-
-import es.upm.sos.biblioteca.modelos.Usuarios;
+import es.upm.sos.biblioteca.models.Usuarios;
 
 @RestController
 @RequestMapping("/biblioteca.api/users")

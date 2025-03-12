@@ -1,4 +1,4 @@
-package es.upm.sos.biblioteca.modelos;
+package es.upm.sos.biblioteca.models;
 import java.io.Serializable;
 import jakarta.persistence.*;
 import lombok.*; //Librería java para reducir la cantidad de código
@@ -20,6 +20,10 @@ public class Libros {
     @Column(name = "autores")
     private String autores;
 
+    @OneToOne
+    @Column(name = "fecha_prestamo", referencedColumnName = "fecha_prestamo")
+    private String prestamo;
+
     @Column(name = "edicion")
     private String edicion;
 
@@ -27,6 +31,6 @@ public class Libros {
     private String editorial;
 
     @Column(name = "isbn")
-    private String Isbn;
+    private String isbn;
 
 }

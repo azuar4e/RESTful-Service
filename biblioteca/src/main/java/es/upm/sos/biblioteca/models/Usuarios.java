@@ -1,4 +1,4 @@
-package es.upm.sos.biblioteca.modelos;
+package es.upm.sos.biblioteca.models;
 import java.io.Serializable;
 import jakarta.persistence.*;
 import lombok.*;
