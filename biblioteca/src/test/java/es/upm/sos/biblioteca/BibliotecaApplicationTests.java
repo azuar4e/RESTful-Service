@@ -1,10 +1,10 @@
-package com.example.demo;
+package es.upm.sos.biblioteca;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DemoApplicationTests {
+class BibliotecaApplicationTests {
 
 	@Test
 	void contextLoads() {
