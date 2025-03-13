@@ -33,7 +33,7 @@ public class PrestamosControllers {
 
         if (fecha == null) { prestamos = servicio.getPrestamosMatricula(matricula); } 
         else { prestamos = servicio.getPrestamosMatriculayFecha(matricula, fecha); }
-        
+
         return ResponseEntity.ok(prestamos);
     }
 }

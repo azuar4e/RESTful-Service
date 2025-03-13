@@ -10,19 +10,14 @@ import lombok.*;
 
 public class Usuario {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
-    @Column(name = "nombre")
-    private String nombre;
-
-    @Column(name = "matricula")
+    // @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String matricula;
 
-    @OneToOne
-    @JoinColumn(name = "fecha", referencedColumnName = "fecha_prestamo")
-    private Prestamo prestamo;
-
-    @Column(name = "correo")
+    @OneToMany
+    @MapsId("pId")
+    @JoinColumn(name = "pId")
+    private List<Prestamo> prestamo;
+    private String nombre;    
     private String correo;
+    private String fechaNacimiento;
 }

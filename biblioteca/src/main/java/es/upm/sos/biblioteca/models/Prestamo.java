@@ -13,14 +13,16 @@ import lombok.*;
 public class Prestamo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int iId;
+    private int pId;
 
-    @ManyToOne
-    @JoinColumn(name = "matricula", referencedColumnName = "matricula")
+    @OneToOne
+    @MapsId("matricula")
+    @JoinColumn(name = "matricula")
     private Usuario usuario;
 
     @OneToOne
-    @JoinColumn(name = "isbn", referencedColumnName = "isbn")
+    @MapsId("isbn")
+    @JoinColumn(name = "isbn")
     private Libro libro;
 
     @Column(name = "fecha_prestamo")

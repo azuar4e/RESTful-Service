@@ -10,25 +10,15 @@ import lombok.*; //Librería java para reducir la cantidad de código
 
 public class Libro {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // valor generado por la base de datos
-    @Column(name = "isbn")
     private String isbn;
 
-    @Column(name = "titulo")
-    private String titulo;
-
-    @Column(name = "autores")
-    private String autores;
-
-    @OneToOne
-    @JoinColumn(name = "fecha_prestamo", referencedColumnName = "fecha_prestamo")
+    @OneToMany
+    @MapsId("pId")
+    @JoinColumn(name = "pId")
     private Prestamo prestamo;
 
-    @Column(name = "edicion")
+    private String titulo;
+    private String autores;
     private String edicion;
-
-    @Column(name = "editorial")
     private String editorial;
-
-
 }

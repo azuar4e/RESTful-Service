@@ -27,5 +27,4 @@ public class ServicioPrestamos{
         else { return Optional.of(repository.getPrestamosMatriculayFecha(matricula, fecha)); }
     }
 
-
 }
