@@ -1,8 +1,9 @@
 package es.upm.sos.biblioteca.controllers;
 
-import es.upm.sos.biblioteca.models.Prestamos;
-import es.upm.sos.biblioteca.repository.PrestamosRepository;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import es.upm.sos.biblioteca.models.Prestamo;
+import es.upm.sos.biblioteca.services.ServicioPrestamos;
+import lombok.AllArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
@@ -10,24 +11,28 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/prestamos")
+@AllArgsConstructor
 public class PrestamosControllers {
+    private ServicioPrestamos servicio;
+
+/* no se pueden dos metodos llamando a la misma url de esta forma
 
     @GetMapping(value = "/users/{matricula}")
-    public ResponseEntity<List<Prestamos>> getPrestamosUsuario(@PathVariable int matricula){
-        List<Prestamos> prestamos;
+    public ResponseEntity<Object> getPrestamosUsuario(@PathVariable int matricula){
+        Optional<List<Prestamo>> prestamos;
 
-        prestamos = PrestamosRepository.getPrestamosMatricula(matricula);
+        prestamos = servicio.getPrestamosMatricula(matricula);
 
         return ResponseEntity.ok(prestamos);
     }
-
+*/
     @GetMapping(value = "/users/{matricula}")
-    public ResponseEntity<List<Prestamos>> getPrestamosUsuario(@PathVariable int matricula, @RequestParam(required = false) String fecha){
+    public ResponseEntity<Object> getPrestamosUsuarioFiltrado(@PathVariable int matricula, @RequestParam(required = false) String fecha){
 
-        List<Prestamos> prestamos;
+        Optional<List<Prestamo>> prestamos;
 
-        if (fecha == null) { prestamos = ParametrosRepository.getPrestamosMatricula(matricula); } 
-        else { prestamos = ParametrosRepository.getPrestamosMatriculayFecha(matricula, fecha); }
+        if (fecha == null) { prestamos = servicio.getPrestamosMatricula(matricula); } 
+        else { prestamos = servicio.getPrestamosMatriculayFecha(matricula, fecha); }
         
         return ResponseEntity.ok(prestamos);
     }

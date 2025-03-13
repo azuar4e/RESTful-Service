@@ -1,36 +1,50 @@
 package es.upm.sos.biblioteca.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import es.upm.sos.biblioteca.models.Libros;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import es.upm.sos.biblioteca.models.Libro;
+import es.upm.sos.biblioteca.services.ServicioLibros;
+import lombok.AllArgsConstructor;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
+
+
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
 @RequestMapping("/biblioteca.api/Libros")
-
+@AllArgsConstructor
 public class LibrosController{
 
     private final ServicioLibros servicio;
 
+    /* @GetMapping("/prueba")
+    public String prueba(){
+        System.out.println("prueba pasada");
+        return "prueba pasada";
+    }
+     */
+
     @GetMapping
-    public ResponseEntity<List<Libros>> getLibros(){
+    public ResponseEntity<Object> getLibros(){
         //devuelve todos los libros  
-        List<Libros> libros;
+        Optional<List<Libro>> libros;
 
         libros = servicio.getLibros();
 
         return ResponseEntity.ok(libros);
     }
-
+                                                                                                                                                        
     @GetMapping(params = "tituloContiene")
-    public ResponseEntity<List<Libros>> getLibrosContenido(
+    public ResponseEntity<Object> getLibrosContenido(
                                         @RequestParam String tituloContiene){
         //devuelve los libros que contengan en su titulo el parametro dicho
-        List<Libros> libros;
+        Optional<List<Libro>> libros;
 
         libros = servicio.getLibrosContenido(tituloContiene);
 
@@ -39,38 +53,38 @@ public class LibrosController{
 
     @GetMapping(params = "disponible")
     //distinto metodo para cuando haya parametro titulo_contiene
-    public ResponseEntity<List<Libros>> getLibrosDisponibles(
+    public ResponseEntity<Object> getLibrosDisponibles(
                                         @RequestParam boolean disponible){
        //devuelve todos los libros disponibles 
-        List<Libros> libros;
+        List<Libro> libros = null;
         
-        
+        //cuerpo por hacer
         
         return ResponseEntity.ok(libros);
     }
 
     @GetMapping("/{Isbn}")
-    public ResponseEntity<Libros> getLibroIsbn(@PathVariable String isbn){
+    public ResponseEntity<Libro> getLibroIsbn(@PathVariable String isbn){
         //devuelve un libro a partir de su isbn
-        Libros libro = new Libros();
+        Libro libro = new Libro();
 
         servicio.getLibroIsbn(isbn);
         
         return ResponseEntity.ok(libro);
     } 
 
-     @PostMapping
-    public ResponseEntity<Object> añadirLibro(@RequestBody Libros libro){
+    @PostMapping
+    public ResponseEntity<Object> añadirLibro(@RequestBody Libro libro){
     //añade el libro que recibe el metodo
     
-        Libro libropost = servicio.postLibro(libro);
+        servicio.postLibro(libro);
 
         return ResponseEntity.created(linkTo(methodOn(LibrosController.class).
                                 getLibroIsbn(libro.getIsbn())).toUri()).build();
     }
 
     @DeleteMapping("/{Isbn}")
-    public ResponseEntity<Void> eliminarLibro(@PathVariable String Isbn){
+    public ResponseEntity<Object> eliminarLibro(@PathVariable String isbn){
         //elimina un libro por su ISBN
 
         servicio.deleteLibro(isbn);
@@ -79,9 +93,9 @@ public class LibrosController{
     }
 
     @PutMapping("/{Isbn}")
-    public ResponseEntity<Void> modificarLibro(@PathVariable String isbn, @RequestBody Libros libro){
+    public ResponseEntity<Object> modificarLibro(@PathVariable String isbn, @RequestBody Libro libro){
 
         
-        return ResponseEntity.noContent();
+        return ResponseEntity.noContent().build();
     }
 }
