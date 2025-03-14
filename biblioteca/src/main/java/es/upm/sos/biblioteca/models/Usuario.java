@@ -15,11 +15,15 @@ public class Usuario {
     // @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String matricula;
 
-    @OneToMany
-    @MapsId("pId")
-    @JoinColumn(name = "pId")
-    private List<Prestamo> prestamo;
-    private String nombre;    
+    // @OneToMany
+    // @MapsId("pId")
+    // @JoinColumn(name = "pId")
+    // private List<Prestamo> prestamo;
+    @NotNull
+    private String nombre;
+    @NotNull
     private String correo;
+    @NotNull
     private String fechaNacimiento;
+    private Date sancion;
 }

@@ -12,9 +12,22 @@ import org.springframework.stereotype.Repository;
 public interface PrestamosRepository extends JpaRepository<Prestamo, Integer> {
 
     //@Query("SELECT p FROM Prestamo p WHERE p.usuario.matricula = :matricula")
-    //List<Prestamo> getPrestamosMatricula(@Param("matricula") int matricula);
+    //List<Prestamo> getPrestamosMatricula(@Param("matricula") String matricula);
 
    // @Query("SELECT p FROM Prestamo p WHERE p.usuario.matricula = :matricula AND p.dPrestamo = :fecha")
-   // List<Prestamo> getPrestamosMatriculayFecha(@Param("matricula") int matricula, @Param("fecha") String fecha);
-    
+   // List<Prestamo> getPrestamosMatriculayFecha(@Param("matricula") String matricula, @Param("fecha") String fecha);
+
+   List<Prestamo> findByMatricula(String matricula);
+
+   Prestamo findByMatriculaAndIsbn(String matricula, String isbn);
+
+   List<Prestamo> findByMatriculaAndFechaDevolucion(String matricula, Date fechaDevolucion);
+
+   List<Prestamo> findByUsuarioMatriculaAndFechaPrestamo(String matricula, Date fechaPrestamo);
+
+   List<Prestamo> findByUsuarioMatriculaAndFechaPrestamoAndFechaDevolucion(String matricula, Date fechaPrestamo, Date fechaDevolucion);
+
+   @Query("UPDATE Prestamo p SET p.fechaDevolucion = :fechaDevolucion WHERE p.usuario.matricula = :matricula AND p.libro.isbn = :isbn")
+   void actualizarFechaDevolucion(@Param("matricula") String matricula, @Param("isbn") String isbn, @Param("fechaDevolucion") Date fechaDevolucion);
+
 }

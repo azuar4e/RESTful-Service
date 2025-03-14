@@ -1,12 +1,12 @@
 package es.upm.sos.biblioteca.services;
-
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import es.upm.sos.biblioteca.Excepciones.Libros.LibroConflictException;
+import es.upm.sos.biblioteca.Excepciones.Libros.LibroNotFoundContentException;
 import es.upm.sos.biblioteca.Excepciones.Libros.LibroNotFoundException;
 import es.upm.sos.biblioteca.models.Libro;
 import es.upm.sos.biblioteca.repository.LibrosRepository;
@@ -16,20 +16,33 @@ import lombok.*;
 @Service //Marcamos la clase como componente de servicio
 @AllArgsConstructor
 
-public class ServicioLibros{
+public class ServicioLibros {
     @Autowired
 
     //repositorio al que llamamos para realizar las querys
     private final LibrosRepository repository;
 
-    //metodo para sacar de la base de datos los libros
-    public List<Libro> getLibros(){
-        return repository.findAll();
+    
+
+    //metodo para sacar de la base de datos los libros en paginas
+    public Page<Libro> getLibros(int page, int size){
+    Pageable paginable = PageRequest.of(page, size);
+        return repository.findAll(paginable);
     }
 
     //metodo para sacar de la base de datos libros con contenido del titulo "contenido"
-    public List<Libro> getLibrosContenido(String contenido){
-        return repository.findByTituloContaining(contenido);
+    public Page<Libro> getLibrosContenido(String contenido, int page, int size){
+
+        /*
+     * 
+     * ESTE METODO HAY QUE HACERLO CON QUE SOLO FILTRE LOS DISPONIBLES
+     * 
+     */
+        Pageable paginable = PageRequest.of(page, size);
+        Page<Libro> libros = repository.findByTituloContaining(contenido,paginable);
+        if (libros == null) {    throw new LibroNotFoundContentException(contenido);  }
+
+        return libros;
     }
 
     //metodo para sacar de la base de datos libros disponibles
@@ -37,7 +50,6 @@ public class ServicioLibros{
 
     //metodo para sacar de la base de datos un libro a partir de su isbn
     public Libro getLibroIsbn(String isbn){
-
         Libro libro = repository.findByIsbn(isbn);
         if (libro == null) {    throw new LibroNotFoundException(isbn);  }
 
@@ -49,14 +61,14 @@ public class ServicioLibros{
         Libro esta = repository.findByIsbn(libro.getIsbn());
         if(esta!=null){ throw new LibroConflictException(esta.getIsbn());   }
         
-        Libro nuevo = repository.save(libro);
-        return nuevo;
+        // Libro nuevo = repository.save(libro);
+        return repository.save(libro);
     }
 
     public Libro actualizarLibro(String isbn, Libro libroNuevo) {
-        
         Optional<Libro> libroExistente = repository.findById(isbn);
-        if (libroExistente.isPresent()) {
+        if (!libroExistente.isPresent()) { throw new LibroNotFoundException(isbn);  }
+        else{
             Libro libro = libroExistente.get();
             libro.setTitulo(libroNuevo.getTitulo());
             libro.setAutores(libroNuevo.getAutores());
@@ -64,8 +76,7 @@ public class ServicioLibros{
             libro.setEditorial(libroNuevo.getEditorial());
 
             return repository.save(libro);
-        } 
-        else { throw new LibroNotFoundException(isbn);  }
+        }
     }
 
 //metodo delete

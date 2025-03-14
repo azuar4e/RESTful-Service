@@ -14,17 +14,13 @@ public class Libro {
     @Id
     @Column(name = "isbn") 
     private String isbn;
-
-    @Column(name = "titulo") 
+    @NotNull
     private String titulo;
-
-    @Column(name = "autores")
+    @NotNull
     private String autores;
-
-    @Column(name = "edicion")
+    @NotNull
     private String edicion;
-
-    @Column(name = "editorial")
+    @NotNull
     private String editorial;
 
     // Relación OneToMany con Prestamo

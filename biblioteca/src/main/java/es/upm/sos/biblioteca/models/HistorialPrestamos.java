@@ -27,7 +27,6 @@ public class Prestamo {
     private Date fechaPrestamo;
     @NotNull
     private Date fechaDevolucion;
-
    // @OneToOne
     //@MapsId("matricula")
     //@JoinColumn(name = "matricula")

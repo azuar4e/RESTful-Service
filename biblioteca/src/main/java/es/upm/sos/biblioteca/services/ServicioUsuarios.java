@@ -15,7 +15,7 @@ import lombok.*;
 @AllArgsConstructor
 
 public class ServicioUsuarios{
-/*     @Autowired
+     @Autowired
 
     //repositorio al que llamamos para realizar las querys
     private final UsuariosRepository repository;
@@ -25,21 +25,27 @@ public class ServicioUsuarios{
         return repository.save(u);
     }
 
-    //Metodo para obtener los datos de un usuario
+    //Metodo para obtener los datos de un usuario a partir de su matricula
     public Optional<Usuario> getUsuario(String matricula){
-        return Optional.of(repository.getUsuario(matricula));
+        return repository.getUsuario(matricula).orElseThrow(() -> new UsuarioNotFoundException(matricula));
     }
     
-
     //Metodo para obtener todos los usuarios | optional se usa para valores posibles null
     public Optional<List<Usuario>> getUsuarios(){
-        return Optional.of(repository.getUsuarios());
+        return repository.getUsuarios(pageable);
     }
 
     //metodo delete
+    @Transactional
     public void deleteUsuario(String matricula){
+        if(repository.findByMatricula(matricula) == null){
+            throw new UsuarioNotFoundException(matricula);
+        }
         repository.deleteUsuario(matricula);
     }
 
-*/
+    //para pruebas borrar todos los usuarios, eliminar al acabar codgio
+    public void deleteTodos(){
+        repository.deleteAll();
+    }
 }

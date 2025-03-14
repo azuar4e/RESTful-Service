@@ -15,6 +15,12 @@ import java.util.*;
 public class PrestamosControllers {
     private ServicioPrestamos servicio;
 
+    //terminar este metodo
+    @GetMapping(params = {"matricula", "isbn"})
+    public getPrestamosMatriculaIsbn () {
+
+    }
+
 /* no se pueden dos metodos llamando a la misma url de esta forma
 
     @GetMapping(value = "/users/{matricula}")

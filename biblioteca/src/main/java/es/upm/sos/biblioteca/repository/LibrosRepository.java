@@ -8,16 +8,10 @@ import org.springframework.data.jpa.repository.*;
 
 
 public interface LibrosRepository extends JpaRepository<Libro, String> {
-    
 
     List<Libro> findByTituloContaining(String titulo);
 
     Libro findByIsbn(String isbn);
 
     void deleteByIsbn(String isbn);
-
-    
-
-
-    
 }

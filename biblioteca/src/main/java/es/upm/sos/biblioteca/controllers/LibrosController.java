@@ -1,14 +1,16 @@
 package es.upm.sos.biblioteca.controllers;
 
 import java.util.List;
-import java.util.Optional;
+
 
 import es.upm.sos.biblioteca.models.Libro;
+import es.upm.sos.biblioteca.models.LibroModelAssembler;
 import es.upm.sos.biblioteca.services.ServicioLibros;
 import lombok.AllArgsConstructor;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,34 +23,39 @@ public class LibrosController{
 
     private final ServicioLibros servicio;
 
-    /* @GetMapping("/prueba")
-    public String prueba(){
-        System.out.println("prueba pasada");
-        return "prueba pasada";
-    }
-     */
+    private PagedResourcesAssembler<Libro> pagedResourcesAssembler;
+    private LibroModelAssembler libroModelAssembler;
 
-    @GetMapping
-    public ResponseEntity<Object> getLibros(){
-        //devuelve todos los libros  
-        List<Libro> libros;
 
-        libros = servicio.getLibros();
+        @GetMapping
+        public ResponseEntity<Object> getLibros(
+            @RequestParam(defaultValue = "0", required = false) int page,
+            @RequestParam(defaultValue = "3", required = false) int size) {
+            //obtiene libros por paginas de tamaños dado
+            Page<Libro> libros = servicio.getLibros(page, size);
+            //formato para la respuesta con paginas y el assembler
+            //pagedResourcesAssembler hace que se le pasen linnks de paginas
+            //toModel(libros,libroModelAssembler) añade a los libros de la pagina su autoreferencia
+    return ResponseEntity.ok(pagedResourcesAssembler.toModel(libros, libroModelAssembler));
+        }
+    
+    
+    
 
-        return ResponseEntity.ok(libros);
-    }
-                                                                                                                                                        
     @GetMapping(params = "tituloContiene")
-    public ResponseEntity<Object> getLibrosContenido(
-                                        @RequestParam String tituloContiene){
+    public ResponseEntity<Object>  getLibrosContenido(
+                    @RequestParam String tituloContiene,
+                    @RequestParam(defaultValue = "0", required = false) int page,
+                    @RequestParam(defaultValue = "3", required = false) int size) {
         //devuelve los libros que contengan en su titulo el parametro dicho
-        List<Libro> libros;
+        Page<Libro> libros = servicio.getLibrosContenido(tituloContiene,page,size);
 
-        libros = servicio.getLibrosContenido(tituloContiene);
+        return new ResponseEntity<>(pagedResourcesAssembler.toModel(libros, libroModelAssembler),HttpStatus.OK);
 
-        return ResponseEntity.ok(libros);
     }
 
+    /******************************************************************
+    /* fFALTA POR HACER */
     @GetMapping(params = "disponible")
     //distinto metodo para cuando haya parametro titulo_contiene
     public ResponseEntity<Object> getLibrosDisponibles(
@@ -60,22 +67,28 @@ public class LibrosController{
         
         return ResponseEntity.ok(libros);
     }
+    /******************************************************************/
 
-    @GetMapping("/{isbn}")
-    public ResponseEntity<Libro> getLibroIsbn(@PathVariable String isbn){
+    @GetMapping("/{isbn}")  
+    public ResponseEntity<Object> getLibroIsbn(@PathVariable String isbn){
         //devuelve un libro a partir de su isbn
-        
-        return ResponseEntity.ok(servicio.getLibroIsbn(isbn));
+        Libro libro = servicio.getLibroIsbn(isbn);
+        //referencia a si mismo
+        libro.add(linkTo(methodOn(LibrosController.class).getLibroIsbn(isbn)).withSelfRel());
+        return ResponseEntity.ok(libro);
     } 
 
+    
+    
     @PostMapping
     public ResponseEntity<Object> añadirLibro(@RequestBody Libro libro){
         Libro nuevo = servicio.postLibro(libro);
         //linkea el nuevo libro a la uri creada por su isbn
         return ResponseEntity.created(linkTo(methodOn(LibrosController.class).
         getLibroIsbn(nuevo.getIsbn())).toUri()).build();
-
     }
+
+
 
     @DeleteMapping("/{isbn}")
     public ResponseEntity<Object> eliminarLibro(@PathVariable String isbn){
@@ -86,7 +99,10 @@ public class LibrosController{
         return ResponseEntity.noContent().build();
     }
 
+    
+    
     @PutMapping("/{isbn}")
+    //actualiza el libro por el isbn
     public ResponseEntity<Object> modificarLibro(@PathVariable String isbn, @RequestBody Libro libro){
 
         servicio.actualizarLibro(isbn, libro);
