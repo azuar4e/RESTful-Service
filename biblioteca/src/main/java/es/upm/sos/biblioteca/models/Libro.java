@@ -1,24 +1,33 @@
 package es.upm.sos.biblioteca.models;
+
 import jakarta.persistence.*;
-import lombok.*; //Librería java para reducir la cantidad de código
+import lombok.*;  // Lombok para reducir código
+
 
 @Entity
-@Table(name="Libro")// Necesario para indicar el nombre de la tabla en la base de datos
-@Data // Lombok genera automáticamente los getters, setters, equals, hashcode y toString
-@NoArgsConstructor // Crea un constructor vacío
-@AllArgsConstructor // Crea un constructor con todos los campos
-
+@Table(name = "libro")  // Nombre de la tabla en la base de datos
+@Data // Lombok genera automáticamente los getters, setters, equals, hashCode, y toString
+@NoArgsConstructor // Constructor vacío
+@AllArgsConstructor // Constructor con todos los campos
 public class Libro {
+
     @Id
+    @Column(name = "isbn") 
     private String isbn;
 
-    @OneToMany
-    @MapsId("pId")
-    @JoinColumn(name = "pId")
-    private Prestamo prestamo;
-
+    @Column(name = "titulo") 
     private String titulo;
+
+    @Column(name = "autores")
     private String autores;
+
+    @Column(name = "edicion")
     private String edicion;
+
+    @Column(name = "editorial")
     private String editorial;
+
+    // Relación OneToMany con Prestamo
+   // @OneToMany(mappedBy = "libro")  // Relación inversa en la clase Prestamo
+    //private List<Prestamo> prestamos;
 }

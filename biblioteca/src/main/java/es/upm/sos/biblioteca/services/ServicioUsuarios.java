@@ -15,7 +15,7 @@ import lombok.*;
 @AllArgsConstructor
 
 public class ServicioUsuarios{
-    @Autowired
+/*     @Autowired
 
     //repositorio al que llamamos para realizar las querys
     private final UsuariosRepository repository;
@@ -41,5 +41,5 @@ public class ServicioUsuarios{
         repository.deleteUsuario(matricula);
     }
 
-
+*/
 }

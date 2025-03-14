@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface UsuariosRepository extends JpaRepository<Usuario, String> {
-
+/* 
     //Obtener un usuario en base a su matricula
     @Query(value = "SELECT u FROM Usuario u WHERE u.matricula = :matricula")
     Usuario getUsuario(@Param("matricula") String matricula);
@@ -24,5 +24,5 @@ public interface UsuariosRepository extends JpaRepository<Usuario, String> {
     //Query para obtener a todos los usuarios
     @Query("SELECT u FROM Usuario u")
     List<Usuario> getUsuarios();
-
+    */
 }

@@ -18,13 +18,13 @@ public class ServicioPrestamos{
     
     private final PrestamosRepository repository;
 
-    public Optional<List<Prestamo>> getPrestamosMatricula(int matricula){
-        return Optional.of(repository.getPrestamosMatricula(matricula));
-    }
+  //  public Optional<List<Prestamo>> getPrestamosMatricula(int matricula){
+  //      return Optional.of(repository.getPrestamosMatricula(matricula));
+  //  }
 
-    public Optional<List<Prestamo>> getPrestamosMatriculayFecha(int matricula, String fecha){
-        if (fecha == null) { return Optional.of(repository.getPrestamosMatricula(matricula)); } 
-        else { return Optional.of(repository.getPrestamosMatriculayFecha(matricula, fecha)); }
-    }
+    //public Optional<List<Prestamo>> getPrestamosMatriculayFecha(int matricula, String fecha){
+      //  if (fecha == null) { return Optional.of(repository.getPrestamosMatricula(matricula)); } 
+        //else { return Optional.of(repository.getPrestamosMatriculayFecha(matricula, fecha)); }
+   // }
 
 }

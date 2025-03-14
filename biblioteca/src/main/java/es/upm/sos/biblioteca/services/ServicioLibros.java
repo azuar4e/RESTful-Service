@@ -6,8 +6,11 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import es.upm.sos.biblioteca.Excepciones.Libros.LibroConflictException;
+import es.upm.sos.biblioteca.Excepciones.Libros.LibroNotFoundException;
 import es.upm.sos.biblioteca.models.Libro;
 import es.upm.sos.biblioteca.repository.LibrosRepository;
+import jakarta.transaction.Transactional;
 import lombok.*;
 
 @Service //Marcamos la clase como componente de servicio
@@ -20,34 +23,62 @@ public class ServicioLibros{
     private final LibrosRepository repository;
 
     //metodo para sacar de la base de datos los libros
-    public Optional<List<Libro>> getLibros(){
-        return Optional.of(repository.getLibros());
+    public List<Libro> getLibros(){
+        return repository.findAll();
     }
 
     //metodo para sacar de la base de datos libros con contenido del titulo "contenido"
-    public Optional<List<Libro>> getLibrosContenido(String contenido){
-        return Optional.of(repository.getLibrosContenido(contenido));
+    public List<Libro> getLibrosContenido(String contenido){
+        return repository.findByTituloContaining(contenido);
     }
 
     //metodo para sacar de la base de datos libros disponibles
     //falta por hacer
 
     //metodo para sacar de la base de datos un libro a partir de su isbn
-    public Optional<Libro> getLibroIsbn(String isbn){
-        return Optional.of(repository.getLibroIsbn(isbn));
+    public Libro getLibroIsbn(String isbn){
+
+        Libro libro = repository.findByIsbn(isbn);
+        if (libro == null) {    throw new LibroNotFoundException(isbn);  }
+
+        return libro;
     }
     
     //metodo para guardar un libro en la tabla de libros/actualizar
     public Libro postLibro(Libro libro){
-        return repository.save(libro);
+        Libro esta = repository.findByIsbn(libro.getIsbn());
+        if(esta!=null){ throw new LibroConflictException(esta.getIsbn());   }
+        
+        Libro nuevo = repository.save(libro);
+        return nuevo;
     }
 
-  //  public void actualizarLibro(Libro libro){
-  //      repository.actualizarLibroPrestamo(libro.getPrestamo(), libro.getId());
-   // }
+    public Libro actualizarLibro(String isbn, Libro libroNuevo) {
+        
+        Optional<Libro> libroExistente = repository.findById(isbn);
+        if (libroExistente.isPresent()) {
+            Libro libro = libroExistente.get();
+            libro.setTitulo(libroNuevo.getTitulo());
+            libro.setAutores(libroNuevo.getAutores());
+            libro.setEdicion(libroNuevo.getEdicion());
+            libro.setEditorial(libroNuevo.getEditorial());
+
+            return repository.save(libro);
+        } 
+        else { throw new LibroNotFoundException(isbn);  }
+    }
 
 //metodo delete
+@Transactional
     public void deleteLibro(String isbn){
-        repository.deleteLibro(isbn);
+        Optional<Libro> libroExistente = repository.findById(isbn); 
+        if(!libroExistente.isPresent()){  throw new LibroNotFoundException(isbn); }
+        
+        repository.deleteByIsbn(isbn);
+    }
+
+    //para pruebas borrar todos los libros, eliminar al acabar codgio
+    public void deleteTodos(){
+        repository.deleteAll();
     }
 }

@@ -15,15 +15,15 @@ public class Prestamo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int pId;
 
-    @OneToOne
-    @MapsId("matricula")
-    @JoinColumn(name = "matricula")
-    private Usuario usuario;
+   // @OneToOne
+    //@MapsId("matricula")
+    //@JoinColumn(name = "matricula")
+    //private Usuario usuario;
 
-    @OneToOne
-    @MapsId("isbn")
-    @JoinColumn(name = "isbn")
-    private Libro libro;
+   // @OneToOne
+    //@MapsId("isbn")
+    //@JoinColumn(name = "isbn")
+    //private Libro libro;
 
     @Column(name = "fecha_prestamo")
     private Date dPrestamo;

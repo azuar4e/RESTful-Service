@@ -26,7 +26,7 @@ public class PrestamosControllers {
         return ResponseEntity.ok(prestamos);
     }
 */
-    @GetMapping(value = "/users/{matricula}")
+/*    @GetMapping(value = "/users/{matricula}")
     public ResponseEntity<Object> getPrestamosUsuarioFiltrado(@PathVariable int matricula, @RequestParam(required = false) String fecha){
 
         Optional<List<Prestamo>> prestamos;
@@ -36,4 +36,5 @@ public class PrestamosControllers {
 
         return ResponseEntity.ok(prestamos);
     }
+        */ 
 }

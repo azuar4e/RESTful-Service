@@ -2,7 +2,7 @@ package es.upm.sos.biblioteca.controllers;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-import javax.validation.Valid;
+//import javax.validation.Valid;
 import es.upm.sos.biblioteca.services.ServicioUsuarios;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +43,7 @@ private ServicioUsuarios servicioUsuarios;
         }
 
 
-    @PostMapping()
+  /*  @PostMapping()
     ResponseEntity<Void> nuevoUsuario(@Valid @RequestBody Usuario nuevoUsuario) {
     if (!ServicioUsuarios.getUsuario(nuevoUsuario.getMatricula())) {
         Usuario usuario = ServicioUsuarios.postUsuario(nuevoUsuario);
@@ -51,4 +51,5 @@ private ServicioUsuarios servicioUsuarios;
         }
         throw new UsuarioExisteException(usuario.getMatricula());
     }
+    */
 }

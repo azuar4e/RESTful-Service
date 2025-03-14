@@ -1,4 +1,6 @@
 package es.upm.sos.biblioteca.models;
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
 

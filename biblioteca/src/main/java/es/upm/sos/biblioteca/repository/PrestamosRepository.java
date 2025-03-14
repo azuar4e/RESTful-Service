@@ -11,10 +11,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PrestamosRepository extends JpaRepository<Prestamo, Integer> {
 
-    @Query("SELECT p FROM Prestamo p WHERE p.usuario.matricula = :matricula")
-    List<Prestamo> getPrestamosMatricula(@Param("matricula") int matricula);
+    //@Query("SELECT p FROM Prestamo p WHERE p.usuario.matricula = :matricula")
+    //List<Prestamo> getPrestamosMatricula(@Param("matricula") int matricula);
 
-    @Query("SELECT p FROM Prestamo p WHERE p.usuario.matricula = :matricula AND p.dPrestamo = :fecha")
-    List<Prestamo> getPrestamosMatriculayFecha(@Param("matricula") int matricula, @Param("fecha") String fecha);
+   // @Query("SELECT p FROM Prestamo p WHERE p.usuario.matricula = :matricula AND p.dPrestamo = :fecha")
+   // List<Prestamo> getPrestamosMatriculayFecha(@Param("matricula") int matricula, @Param("fecha") String fecha);
     
 }
