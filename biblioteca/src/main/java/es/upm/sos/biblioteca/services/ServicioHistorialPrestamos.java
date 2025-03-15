@@ -16,7 +16,7 @@ public class ServicioHistorialPrestamos{
     private final HistorialPrestamosRepository repository;
 
     public List<HistorialPrestamos> getHistorialPrestamosPorMatricula(String matricula){
-        List<HistorialPrestamos> historial = repository.findByMatricula();
+        List<HistorialPrestamos> historial = repository.findByMatricula(matricula);
 
         if(historial.isEmpty()){
             throw new HistorialNotFound(matricula);
@@ -25,28 +25,54 @@ public class ServicioHistorialPrestamos{
         return historial;
     }
 
-    /*
-    public List<HistorialPrestamos>  getHistorialPorMatriculaYFecha(String matricula, Date fechaDevolucion){
+    //Devuelve los prestamos de x fecha de devolucion
+    public List<HistorialPrestamos> getPrestamosPorFechaDevolucion(String matricula, LocalDate fechaDevolucion) {
+        Pageable paginable = PageRequest.of(page,size);
+        Page<HistorialPrestamos> historial = repository.findByUsuarioMatriculaAndFechaDevolucion(matricula,fechaPrestamo);
 
+        if(historial.isEmpty()){
+            throw new HistorialIsNull(matricula,fechaPrestamo);
+        }
+        return historial;
     }
-    */
 
+    //Devuelve los prestamos en x fecha
+    public List<HistorialPrestamos> getPrestamosPorFechaPrestamo(String matricula, LocalDate fechaPrestamo) {
+        Pageable paginable = PageRequest.of(page,size);
+        Page<HistorialPrestamos> historial = repository.findByUsuarioMatriculaAndFechaPrestamo(matricula,fechaPrestamo);
+
+        if(historial.isEmpty()){
+            throw new HistorialIsNull(matricula,fechaPrestamo);
+        }
+        return historial;
+    }
+
+    public List<HistorialPrestamos> getPrestamosPorFechas(String matricula, LocalDate fechaPrestamos, LocalDate fechaDevolucion){
+        Pageable paginable = PageRequest.of(page,size);
+        Page<HistorialPrestamos> historial = repository.findByUsuarioMatriculaAndFechaPrestamoAndFechaDevolucion(matricula,fechaPrestamos,fechaDevolucion);
+
+        if(historial.isEmpty())
+                throw new HistorialEntrePrestamosNull(matricula,fechaPrestamos,fechaDevolucion);
+
+            return historial;
+    }
+    
     //Metodo para obtener los ultimos cinco libros
-    public List<Prestamo> getUltimosCincoLibrosDevueltos(String matricula) {
+    public List<HistorialPrestamos> getUltimosCincoLibrosDevueltos(String matricula) {
         Pageable paginable = PageRequest.of(0, 5);
-        Page<Prestamo> prestamos = repository.findByMatricula(matricula,paginable);
+        Page<HistorialPrestamos> prestamos = repository.findByMatricula(matricula,paginable);
   
-        if (prestamos == null) { throw new PrestamoNotFoundContentException(matricula); }
+        if (prestamos.isEmpty()) { throw new HistorialIsEmpty(matricula); }
   
         return prestamos;
     }
 
     //Metodo para devolver libros devueltos
-    public List<Prestamo> getUltimosLibrosDevueltos(String matricula, int page, int size) {
+    public List<HistorialPrestamos> getUltimosLibrosDevueltos(String matricula, int page, int size) {
     Pageable paginable = PageRequest.of(page, size);
-    Page<Prestamo> prestamos = repository.findByMatricula(matricula,paginable);
+    Page<HistorialPrestamos> prestamos = repository.findByMatricula(matricula,paginable);
     
-    if (prestamos == null) { throw new PrestamoNotFoundContentException(matricula); }
+    if (prestamos.isEmpty()) { throw new HistorialIsEmpty(matricula); }
 
     return prestamos;
     }

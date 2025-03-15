@@ -2,6 +2,7 @@ package es.upm.sos.biblioteca.controllers;
 
 import es.upm.sos.biblioteca.models.Prestamo;
 import es.upm.sos.biblioteca.services.ServicioPrestamos;
+import es.upm.sos.biblioteca.models.PrestamoModelAssembler;
 import lombok.AllArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -14,11 +15,20 @@ import java.util.*;
 @AllArgsConstructor
 public class PrestamosControllers {
     private ServicioPrestamos servicio;
+    private PagedResourcesAssembler<Prestamo> pagedResourcesAssembler;
+    private PrestamoModelAssembler prestamoModelAssembler;
 
     //terminar este metodo
     @GetMapping(params = {"matricula", "isbn"})
-    public getPrestamosMatriculaIsbn () {
+    public ResponseEntity<Object> getPrestamosMatriculaIsbn (@RequestParam String matricula,
+        @RequestParam String isbn) {
 
+        try {
+            Prestamo prestamo = servicio.getPrestamoMatriculaIsbn(matricula, isbn);
+            return ResponseEntity.ok(prestamoModelAssembler.toModel(prestamo));
+        } catch (PrestamoNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 /* no se pueden dos metodos llamando a la misma url de esta forma

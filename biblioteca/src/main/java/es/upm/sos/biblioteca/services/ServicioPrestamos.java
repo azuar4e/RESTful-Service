@@ -28,19 +28,25 @@ public class ServicioPrestamos{
         //else { return Optional.of(repository.getPrestamosMatriculayFecha(matricula, fecha)); }
    // }
 
+    public Prestamo getPrestamoId(int id) {
+      Optional<Prestamo> prestamo = repository.findById(id);
 
+      if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
+
+      return prestamo.get();
+    }
 
     public List<Prestamo> getPrestamosMatricula(String matricula, int page, int size){
       Pageable paginable = PageRequest.of(page, size);
-      Page<Prestamo> prestamos = repository.findByMatricula(matricula,paginable);
+      Page<Prestamo> prestamos = repository.findByUsuarioMatricula(matricula,paginable);
 
-      if (prestamos.isEmpty()) { throw new PrestamoNotFoundException(matricula, isbn); }
+      if (prestamos.isEmpty()) { throw new PrestamoNotFoundException(null, matricula, isbn); }
 
       return prestamos;
     }
 
-    public Prestamo getPrestamosMatriculaIsbn(String matricula, String isbn){
-      Prestamo prestamo = prestamoRepository.findByMatriculaAndIsbn(matricula, isbn);
+    public Prestamo getPrestamoMatriculaIsbn(String matricula, String isbn){
+      Prestamo prestamo = prestamoRepository.findByUsuarioMatriculaAndLibroIsbn(matricula, isbn);
 
       if (prestamo == null) { throw new PrestamoNotFoundContentException(matricula); }
 

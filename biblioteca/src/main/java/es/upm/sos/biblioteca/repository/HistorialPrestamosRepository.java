@@ -13,11 +13,11 @@ public interface PrestamosRepository extends JpaRepository<HistorialPrestamos, I
 
     List<HistorialPrestamos> findByMatricula(String matricula);
 
-    List<HistorialPrestamos> findByMatriculaAndFechaDevolucion(String matricula, Date fechaDevolucion);
+    List<HistorialPrestamos> findByUsuarioMatriculaAndFechaDevolucion(String matricula, LocalDate fechaDevolucion);
  
-    List<HistorialPrestamos> findByUsuarioMatriculaAndFechaPrestamo(String matricula, Date fechaPrestamo);
+    List<HistorialPrestamos> findByUsuarioMatriculaAndFechaPrestamo(String matricula, LocalDate fechaPrestamo);
  
-    List<HistorialPrestamos> findByUsuarioMatriculaAndFechaPrestamoAndFechaDevolucion(String matricula, Date fechaPrestamo, Date fechaDevolucion);
+    List<HistorialPrestamos> findByUsuarioMatriculaAndFechaPrestamoAndFechaDevolucion(String matricula, LocalDate fechaPrestamo, LocalDate fechaDevolucion);
 
     @Query("SELECT p FROM HistorialPrestamos p WHERE p.usuario.matricula = :matricula ORDER BY p.fechaDevolucion DESC")
     List<HistorialPrestamos> getUltimosLibrosDevueltos(@Param("matricula") String matricula, Pageable pageable);
