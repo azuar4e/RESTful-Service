@@ -1,12 +1,12 @@
 package es.upm.sos.biblioteca.models;
 
+import es.upm.sos.biblioteca.controllers.PrestamosController;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
-
-import es.upm.sos.biblioteca.controllers.PrestamosController;
 
 @Component
 
@@ -19,7 +19,6 @@ public class PrestamoModelAssembler extends RepresentationModelAssemblerSupport<
         @Override
         public Prestamo toModel(Prestamo entity) {    //añadimos propia referencia
             entity.add(linkTo(methodOn(PrestamosController.class).getPrestamoId(entity.getId())).withSelfRel());
-
             return entity;
         }
 }

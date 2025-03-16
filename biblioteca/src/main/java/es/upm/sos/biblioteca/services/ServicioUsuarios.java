@@ -2,6 +2,7 @@ package es.upm.sos.biblioteca.services;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,9 @@ import org.springframework.stereotype.Service;
 import es.upm.sos.biblioteca.models.Usuario;
 import es.upm.sos.biblioteca.repository.LibrosRepository;
 import es.upm.sos.biblioteca.repository.UsuariosRepository;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.*;
 import lombok.*;
 
 @Service //Marcamos la clase como componente de servicio

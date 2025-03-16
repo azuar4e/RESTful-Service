@@ -1,4 +1,4 @@
-package es.upm.sos.biblioteca.Excepciones.Libros;
+package es.upm.sos.biblioteca.Excepciones.Prestamos;
 import es.upm.sos.biblioteca.Excepciones.ErrorMessage;
 
 import org.springframework.http.HttpStatus;
@@ -19,13 +19,19 @@ public class PrestamosExcepciones {
 
     @ExceptionHandler(FechaDevolucionException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    ErrorMessage FechaDevolucionException(PrestamoNotFoundContentException ex) {
+    ErrorMessage FechaDevolucionException(FechaDevolucionException ex) {
         return new ErrorMessage(ex.getMessage());
     }
 
     @ExceptionHandler(PrestamoNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    ErrorMessage PrestamoNotFoundException(PrestamoNotFoundContentException ex) {
+    ErrorMessage PrestamoNotFoundException(PrestamoNotFoundException ex) {
+        return new ErrorMessage(ex.getMessage());
+    }
+
+    @ExceptionHandler(PrestamoNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ErrorMessage PrestamoConflictException(PrestamoConflictException ex) {
         return new ErrorMessage(ex.getMessage());
     }
 }

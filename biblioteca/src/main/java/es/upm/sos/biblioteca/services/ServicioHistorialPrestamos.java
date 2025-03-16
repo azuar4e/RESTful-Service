@@ -3,15 +3,20 @@ package es.upm.sos.biblioteca.services;
 import es.upm.sos.biblioteca.models.HistorialPrestamos;
 import es.upm.sos.biblioteca.repository.HistorialPrestamosRepository;
 import es.upm.sos.biblioteca.repository.UsuariosRepository;
+import org.springframework.data.jpa.repository.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.*;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 import lombok.*;
-import java.util.LocalDate;
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
 
 public class ServicioHistorialPrestamos{
     @Autowired
-
     //repositorio al que llamamos para realizar las querys
     private final HistorialPrestamosRepository repository;
 

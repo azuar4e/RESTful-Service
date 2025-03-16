@@ -1,5 +1,6 @@
 package es.upm.sos.biblioteca.models;
-import java.util.List;
+import java.util.Date;
+
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,12 +19,11 @@ public class Usuario {
     // @OneToMany
     // @MapsId("pId")
     // @JoinColumn(name = "pId")
-    // private List<Prestamo> prestamo;
-    @NotNull
+    @Column
     private String nombre;
-    @NotNull
+    @Column
     private String correo;
-    @NotNull
+    @Column
     private String fechaNacimiento;
     private Date sancion;
 }

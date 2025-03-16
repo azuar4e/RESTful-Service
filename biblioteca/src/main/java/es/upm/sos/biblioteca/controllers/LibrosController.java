@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/biblioteca.api/Libros")
 @AllArgsConstructor
-public class LibrosController{
+public class LibrosController {
 
     private final ServicioLibros servicio;
 
@@ -44,38 +44,44 @@ public class LibrosController{
 
     @GetMapping(params = "tituloContiene")
     public ResponseEntity<Object>  getLibrosContenido(
-                    @RequestParam String tituloContiene,
+                    @RequestParam String tituloContiene, 
                     @RequestParam(defaultValue = "0", required = false) int page,
                     @RequestParam(defaultValue = "3", required = false) int size) {
         //devuelve los libros que contengan en su titulo el parametro dicho
         Page<Libro> libros = servicio.getLibrosContenido(tituloContiene,page,size);
-
         return new ResponseEntity<>(pagedResourcesAssembler.toModel(libros, libroModelAssembler),HttpStatus.OK);
 
     }
 
-    /******************************************************************
-    /* fFALTA POR HACER */
     @GetMapping(params = "disponible")
     //distinto metodo para cuando haya parametro titulo_contiene
     public ResponseEntity<Object> getLibrosDisponibles(
-                                        @RequestParam boolean disponible){
+                                    @RequestParam boolean disponible,
+                                @RequestParam(defaultValue = "0", required = false) int page,
+                                @RequestParam(defaultValue = "3", required = false) int size) {
+        try{
        //devuelve todos los libros disponibles 
-        List<Libro> libros = null;
-        
-        //cuerpo por hacer
-        
-        return ResponseEntity.ok(libros);
+            List<Libro> libros = service.getLibrosDisponibles(page,size);
+            return new ResponseEntity<>(pagedResourcesAssembler.toModel(libros, libroModelAssembler),HttpStatus.OK);
+        }
+       catch(LibroNotFoundContentException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+       }
     }
-    /******************************************************************/
 
     @GetMapping("/{isbn}")  
     public ResponseEntity<Object> getLibroIsbn(@PathVariable String isbn){
         //devuelve un libro a partir de su isbn
         Libro libro = servicio.getLibroIsbn(isbn);
         //referencia a si mismo
-        libro.add(linkTo(methodOn(LibrosController.class).getLibroIsbn(isbn)).withSelfRel());
-        return ResponseEntity.ok(libro);
+        try{
+            libro.add(linkTo(methodOn(LibrosController.class).getLibroIsbn(isbn)).withSelfRel());
+            return ResponseEntity.ok(libro);
+        }
+        catch (LibroNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); 
+        }
+
     } 
 
     
@@ -83,9 +89,14 @@ public class LibrosController{
     @PostMapping
     public ResponseEntity<Object> añadirLibro(@RequestBody Libro libro){
         Libro nuevo = servicio.postLibro(libro);
-        //linkea el nuevo libro a la uri creada por su isbn
-        return ResponseEntity.created(linkTo(methodOn(LibrosController.class).
-        getLibroIsbn(nuevo.getIsbn())).toUri()).build();
+       try{
+            //linkea el nuevo libro a la uri creada por su isbn
+            return ResponseEntity.created(linkTo(methodOn(LibrosController.class).
+                                        getLibroIsbn(nuevo.getIsbn())).toUri()).build();
+       } catch(LibroConflictException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e);
+       }
+       
     }
 
 
@@ -93,10 +104,13 @@ public class LibrosController{
     @DeleteMapping("/{isbn}")
     public ResponseEntity<Object> eliminarLibro(@PathVariable String isbn){
         //elimina un libro por su ISBN
-
-        servicio.deleteLibro(isbn);
-
-        return ResponseEntity.noContent().build();
+        try{
+            servicio.deleteLibro(isbn);
+            return ResponseEntity.noContent().build();
+            }   
+        catch (LibroNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); 
+        }
     }
 
     
@@ -104,10 +118,13 @@ public class LibrosController{
     @PutMapping("/{isbn}")
     //actualiza el libro por el isbn
     public ResponseEntity<Object> modificarLibro(@PathVariable String isbn, @RequestBody Libro libro){
-
+        try{
         servicio.actualizarLibro(isbn, libro);
-        
         return ResponseEntity.noContent().build();
+        }
+        catch (LibroNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); 
+        }
     }
 
 

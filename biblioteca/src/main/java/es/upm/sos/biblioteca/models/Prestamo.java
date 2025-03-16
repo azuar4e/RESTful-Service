@@ -1,6 +1,6 @@
 package es.upm.sos.biblioteca.models;
-import java.util.Date;
 
+import java.time.LocalDate;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,10 +23,10 @@ public class Prestamo {
     @JoinColumn(name = "libro_id")
     private Libro libro;
 
-    @NotNull
-    private Date fechaPrestamo;
-    @NotNull
-    private Date fechaDevolucion;
+    @Column(name = "fecha_prestamo", nullable = false)
+    private LocalDate fechaPrestamo;
+    @Column(name = "fecha_devolucion", nullable = false)
+    private LocalDate fechaDevolucion;
 
    // @OneToOne
     //@MapsId("matricula")

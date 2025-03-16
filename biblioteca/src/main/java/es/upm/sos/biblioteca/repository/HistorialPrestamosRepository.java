@@ -2,14 +2,15 @@ package es.upm.sos.biblioteca.repository;
 import es.upm.sos.biblioteca.models.HistorialPrestamos;
 
 import java.util.List;
-
+import java.time.LocalDate;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.*;
 
 @Repository
-public interface PrestamosRepository extends JpaRepository<HistorialPrestamos, Integer> {
+public interface HistorialPrestamosRepository extends JpaRepository<HistorialPrestamos, Integer> {
 
     List<HistorialPrestamos> findByMatricula(String matricula);
 

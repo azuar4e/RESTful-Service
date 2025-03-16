@@ -1,5 +1,7 @@
 package es.upm.sos.biblioteca.models;
 
+import org.springframework.hateoas.RepresentationModel;
+
 import jakarta.persistence.*;
 import lombok.*;  // Lombok para reducir código
 
@@ -9,21 +11,24 @@ import lombok.*;  // Lombok para reducir código
 @Data // Lombok genera automáticamente los getters, setters, equals, hashCode, y toString
 @NoArgsConstructor // Constructor vacío
 @AllArgsConstructor // Constructor con todos los campos
-public class Libro {
+public class Libro extends RepresentationModel<Libro>{
 
     @Id
     @Column(name = "isbn") 
     private String isbn;
-    @NotNull
+
+    @Column(name = "titulo") 
     private String titulo;
-    @NotNull
+
+    @Column(name = "autores")
     private String autores;
-    @NotNull
+
+    @Column(name = "edicion")
     private String edicion;
-    @NotNull
+
+    @Column(name = "editorial")
     private String editorial;
 
     // Relación OneToMany con Prestamo
    // @OneToMany(mappedBy = "libro")  // Relación inversa en la clase Prestamo
-    //private List<Prestamo> prestamos;
 }
