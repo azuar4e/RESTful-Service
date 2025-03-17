@@ -35,7 +35,8 @@ public class ServicioLibros {
 
         Pageable paginable = PageRequest.of(page, size);
         Page<Libro> libros = repository.findLibrosContenido(contenido,paginable);
-        if (libros == null) {    throw new LibroNotFoundContentException(contenido);  }
+        if (libros.isEmpty()) {    
+            throw new LibroNotFoundContentException(contenido);  }
 
         return libros;
     }
@@ -43,7 +44,7 @@ public class ServicioLibros {
     public Page<Libro> getLibrosDisponibles(int page, int size){
         Pageable paginable = PageRequest.of(page,size);
         Page<Libro> libros = repository.findLibrosDisponibles(paginable);
-        if (libros == null) {    throw new LibroNotFoundContentException("");  }
+        if (libros.isEmpty()) {    throw new LibroNotFoundContentException("");  }
 
         return libros;
     }

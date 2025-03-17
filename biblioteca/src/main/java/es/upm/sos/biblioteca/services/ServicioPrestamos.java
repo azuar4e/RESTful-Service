@@ -4,7 +4,6 @@ import java.util.List;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import es.upm.sos.biblioteca.models.Prestamo;
 import es.upm.sos.biblioteca.repository.PrestamosRepository;
@@ -13,30 +12,17 @@ import lombok.*;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundContentException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.FechaDevolucionException;
-import es.upm.sos.biblioteca.repository.PrestamosRepository;
-import es.upm.sos.biblioteca.Excepciones.Libros.LibroNotFoundContentException;
-
+import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoConflictException;
 
 @Service
 @AllArgsConstructor
-public class ServicioPrestamos{
-    @Autowired
-    
-    private PrestamosRepository repository;
-
-  //  public Optional<List<Prestamo>> getPrestamosMatricula(int matricula){
-  //      return Optional.of(repository.getPrestamosMatricula(matricula));
-  //  }
-
-    //public Optional<List<Prestamo>> getPrestamosMatriculayFecha(int matricula, String fecha){
-      //  if (fecha == null) { return Optional.of(repository.getPrestamosMatricula(matricula)); } 
-        //else { return Optional.of(repository.getPrestamosMatriculayFecha(matricula, fecha)); }
-   // }
+public class ServicioPrestamos{    
+    private final PrestamosRepository repository;
 
     public Prestamo getPrestamoId(int id) {
-      Optional<Prestamo> prestamo = repository.findById(id);
+      Optional<Prestamo> prestamo = Optional.of(repository.findById(id));
 
-      if (!prestamo.isPresent()) { throw new PrestamoNotFoundException((Integer) id, null, null); }
+      if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
 
       return prestamo.get();
     }
@@ -45,7 +31,7 @@ public class ServicioPrestamos{
       Pageable paginable = PageRequest.of(page, size);
       Page<Prestamo> prestamos = repository.findByUsuarioMatricula(matricula,paginable);
 
-      if (prestamos.isEmpty()) { throw new PrestamoNotFoundException(null, matricula, isbn); }
+      if (prestamos.isEmpty()) { throw new PrestamoNotFoundException(null, matricula, null); }
 
       return prestamos;
     }
@@ -81,7 +67,7 @@ public class ServicioPrestamos{
 
     public void actualizarFechaDevolucion(int id, LocalDate fechaDevolucion) {
 
-      Optional<Prestamo> prestamo = repository.findById(id);
+      Optional<Prestamo> prestamo = Optional.of(repository.findById(id));
       if (!prestamo.isPresent()) { throw new PrestamoNotFoundException((Integer) id, null, null); }
 
       LocalDate fechaActual = LocalDate.now();
@@ -96,13 +82,13 @@ public class ServicioPrestamos{
     }
 
     public void deletePrestamo(int id) {
-      Optional<Prestamo> prestamo = repository.findById(id);
+      Optional<Prestamo> prestamo = Optional.of(repository.findById(id));
       if (!prestamo.isPresent()) { throw new PrestamoNotFoundException((Integer) id, null, null); }
       repository.deleteById(id);
     }
 
     public void postPrestamo(Prestamo prestamo) {
-      Optional<Prestamo> prestamoExistente = repository.findById(prestamo.getId());
+      Optional<Prestamo> prestamoExistente = Optional.of(repository.findById(prestamo.getId()));
       if (prestamoExistente.isPresent()) { throw new PrestamoConflictException(prestamo.getId()); }
       repository.save(prestamo);
     }

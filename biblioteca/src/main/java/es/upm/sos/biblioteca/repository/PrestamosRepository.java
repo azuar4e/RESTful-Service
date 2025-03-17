@@ -1,28 +1,26 @@
 package es.upm.sos.biblioteca.repository;
 import es.upm.sos.biblioteca.models.Prestamo;
 
-import java.util.List;
 import java.time.LocalDate;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PrestamosRepository extends JpaRepository<Prestamo, Integer> {
 
    Prestamo findById(int id);
    
-   List<Prestamo> findByMatricula(String matricula);
+   Page<Prestamo> findByUsuarioMatricula(String matricula, Pageable paginable);
 
    Prestamo findByUsuarioMatriculaAndLibroIsbn(String matricula, String isbn);
 
-   List<Prestamo> findByUsuarioMatriculaAndFechaDevolucion(String matricula, LocalDate fechaDevolucion);
+   Page<Prestamo> findByUsuarioMatriculaAndFechaDevolucion(String matricula, LocalDate fechaDevolucion, Pageable paginable);
 
-   List<Prestamo> findByUsuarioMatriculaAndFechaPrestamo(String matricula, LocalDate fechaPrestamo);
+   Page<Prestamo> findByUsuarioMatriculaAndFechaPrestamo(String matricula, LocalDate fechaPrestamo, Pageable paginable);
 
-   List<Prestamo> findByUsuarioMatriculaAndFechaPrestamoAndFechaDevolucion(String matricula, LocalDate fechaPrestamo, LocalDate fechaDevolucion);
+   Page<Prestamo> findByUsuarioMatriculaAndFechaPrestamoAndFechaDevolucion(String matricula, LocalDate fechaPrestamo, LocalDate fechaDevolucion, Pageable paginable);
 
    void deleteById(String isbn);
 

@@ -1,8 +1,7 @@
 package es.upm.sos.biblioteca.controllers;
 
-import java.util.List;
 
-
+import es.upm.sos.biblioteca.Excepciones.Libros.*;
 import es.upm.sos.biblioteca.models.Libro;
 import es.upm.sos.biblioteca.models.LibroModelAssembler;
 import es.upm.sos.biblioteca.services.ServicioLibros;
@@ -49,6 +48,7 @@ public class LibrosController {
                     @RequestParam(defaultValue = "3", required = false) int size) {
         //devuelve los libros que contengan en su titulo el parametro dicho
         Page<Libro> libros = servicio.getLibrosContenido(tituloContiene,page,size);
+
         return new ResponseEntity<>(pagedResourcesAssembler.toModel(libros, libroModelAssembler),HttpStatus.OK);
 
     }
@@ -56,12 +56,12 @@ public class LibrosController {
     @GetMapping(params = "disponible")
     //distinto metodo para cuando haya parametro titulo_contiene
     public ResponseEntity<Object> getLibrosDisponibles(
-                                    @RequestParam boolean disponible,
+                                @RequestParam boolean disponible,
                                 @RequestParam(defaultValue = "0", required = false) int page,
                                 @RequestParam(defaultValue = "3", required = false) int size) {
         try{
        //devuelve todos los libros disponibles 
-            List<Libro> libros = service.getLibrosDisponibles(page,size);
+            Page<Libro> libros = servicio.getLibrosDisponibles(page,size);
             return new ResponseEntity<>(pagedResourcesAssembler.toModel(libros, libroModelAssembler),HttpStatus.OK);
         }
        catch(LibroNotFoundContentException e){
@@ -89,14 +89,14 @@ public class LibrosController {
     @PostMapping
     public ResponseEntity<Object> añadirLibro(@RequestBody Libro libro){
         Libro nuevo = servicio.postLibro(libro);
-       try{
+    try{
             //linkea el nuevo libro a la uri creada por su isbn
             return ResponseEntity.created(linkTo(methodOn(LibrosController.class).
                                         getLibroIsbn(nuevo.getIsbn())).toUri()).build();
-       } catch(LibroConflictException e){
+    } catch(LibroConflictException e){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e);
-       }
-       
+    }
+    
     }
 
 

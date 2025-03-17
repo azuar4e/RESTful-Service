@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor // Crea un constructor vacío
 @AllArgsConstructor
 
-public class Usuario extends RepresentationModel<Libro> {
+public class Usuario extends RepresentationModel<Usuario> {
     @Id
     // @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String matricula;

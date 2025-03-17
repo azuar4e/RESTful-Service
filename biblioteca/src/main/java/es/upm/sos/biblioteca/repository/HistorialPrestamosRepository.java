@@ -3,16 +3,16 @@ import es.upm.sos.biblioteca.models.HistorialPrestamos;
 
 import java.util.List;
 import java.time.LocalDate;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.data.domain.*;
 
 @Repository
 public interface HistorialPrestamosRepository extends JpaRepository<HistorialPrestamos, Integer> {
 
-    List<HistorialPrestamos> findByMatricula(String matricula);
+    Page<HistorialPrestamos> findByMatricula(String matricula, Pageable paginable);
 
     List<HistorialPrestamos> findByUsuarioMatriculaAndFechaDevolucion(String matricula, LocalDate fechaDevolucion);
  
@@ -21,6 +21,6 @@ public interface HistorialPrestamosRepository extends JpaRepository<HistorialPre
     List<HistorialPrestamos> findByUsuarioMatriculaAndFechaPrestamoAndFechaDevolucion(String matricula, LocalDate fechaPrestamo, LocalDate fechaDevolucion);
 
     @Query("SELECT p FROM HistorialPrestamos p WHERE p.usuario.matricula = :matricula ORDER BY p.fechaDevolucion DESC")
-    List<HistorialPrestamos> getUltimosLibrosDevueltos(@Param("matricula") String matricula, Pageable pageable);
+    Page<HistorialPrestamos> getUltimosLibrosDevueltos(@Param("matricula") String matricula, Pageable pageable);
     
 }

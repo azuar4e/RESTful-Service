@@ -1,6 +1,9 @@
 package es.upm.sos.biblioteca.models;
 
 import java.time.LocalDate;
+
+import org.springframework.hateoas.RepresentationModel;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,10 +13,10 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class Prestamo {
+public class Prestamo extends RepresentationModel<Prestamo> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int pId;
+    private int id;
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")

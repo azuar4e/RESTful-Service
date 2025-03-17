@@ -20,13 +20,15 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class HistorialPrestamosController {
 
-    @Autowired
+    // @Autowired
     private ServicioHistorialPrestamos servicio;
 
     @GetMapping("/{matricula}")
-    public ResponseEntity<Object> getHistorial(@PathVariable String matricula){
+    public ResponseEntity<Object> getHistorial(@PathVariable String matricula,
+        @RequestParam(defaultValue = "0", required = false) int page,
+        @RequestParam(defaultValue = "10", required = false) int size){
         try{
-        List<HistorialPrestamos> historial = servicio.getHistorialPrestamosPorMatricula(matricula);
+        Page<HistorialPrestamos> historial = servicio.getHistorialPrestamosPorMatricula(matricula, page, size);
         return ResponseEntity.ok(historial);
         }
         catch(HistorialNotFound e){
@@ -49,10 +51,10 @@ public class HistorialPrestamosController {
     @GetMapping(params= {"matricula","fechaPrestamos"})
     public ResponseEntity<Object> getPrestamosPorFPrestamos(@RequestParam String matricula,@RequestParam LocalDate fechaPrestamos){
         try{
-        List<HistorialPrestamos> historial = servicio.getPrestamosPorFechaPrestamo(matricula,fechaPrestamo);
+        List<HistorialPrestamos> historial = servicio.getPrestamosPorFechaPrestamo(matricula,fechaPrestamos);
         return ResponseEntity.ok(historial);
         }
-        catch(HistorailIsNull e){
+        catch(HistorialIsNull e){
             return ResponseEntity.notFound().build();
         }
     }
@@ -60,8 +62,8 @@ public class HistorialPrestamosController {
     @GetMapping(params= {"matricula","fechaPrestamos","fechaDevolucion"})
     public ResponseEntity<Object> getPrestamosEntreFechas(@RequestParam String matricula, @RequestParam LocalDate fechaPrestamos, @RequestParam LocalDate fechaDevolucion){
         try{
-        List<HistorialPrestamos> historial = servicio.getPrestamosEntreFechas(matricula, fechaPrestamos, fechaDevolucion);
-        return ResponeEntity.ok(historial);
+            List<HistorialPrestamos> historial = servicio.getPrestamosPorFechas(matricula, fechaPrestamos, fechaDevolucion);
+            return ResponseEntity.ok(historial);
         }
         catch(HistorialNotFound e){
             return ResponseEntity.notFound().build();

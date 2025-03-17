@@ -1,55 +1,85 @@
 package es.upm.sos.biblioteca.controllers;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 //import javax.validation.Valid;
 import es.upm.sos.biblioteca.services.ServicioUsuarios;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import es.upm.sos.biblioteca.Excepciones.Libros.LibroConflictException;
+import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioNotFoundException;
 import es.upm.sos.biblioteca.models.Usuario;
-import es.upm.sos.biblioteca.services.ServicioUsuarios;
 import lombok.*;
 
+
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/biblioteca.api/users")
 @AllArgsConstructor
 public class UsuariosController {
 
-@Autowired
-private ServicioUsuarios servicioUsuarios; 
+private ServicioUsuarios servicioUsuarios;
 
-    @PostMapping("/users")
-    
-    public void creaUsuario (@RequestBody Usuario user) {
-    /*    user.setMatricula("");
-        user.setNombre();
-        user.setFecha();
-        user.setEmail();
-    */ 
+    @GetMapping
+    public ResponseEntity<Object> getUsuarios( 
+            @RequestParam(defaultValue = "0", required = false) int page,
+            @RequestParam(defaultValue = "3", required = false) int size){
+        Page<Usuario> usuarios = servicioUsuarios.getUsuarios(page, size);
+        return ResponseEntity.ok(usuarios);
     }
+    
 
     @GetMapping("/{matricula}")
-        public ResponseEntity<Usuario> getUsuario(@PathVariable String matricula){
-        Usuario usuario = new Usuario();
-
-        //cuerpo faltante
-        //
-        
-        return ResponseEntity.ok(usuario);
+        public ResponseEntity<Object> getUsuario(@PathVariable String matricula){
+        try{
+            Usuario usuario = servicioUsuarios.getUsuario(matricula);
+            return ResponseEntity.ok(usuario);
         }
-
-
-/*  @PostMapping()
-    ResponseEntity<Void> nuevoUsuario(@Valid @RequestBody Usuario nuevoUsuario) {
-    if (!ServicioUsuarios.getUsuario(nuevoUsuario.getMatricula())) {
-        Usuario usuario = ServicioUsuarios.postUsuario(nuevoUsuario);
-        return ResponseEntity.created(linkTo(UsuariosController.class).slash(usuario.getMatricula()).toUri()).build();
+        catch(UsuarioNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
         }
-        throw new UsuarioExisteException(usuario.getMatricula());
     }
-    */
+
+
+    @PostMapping
+    public ResponseEntity<Object> añadirUsuario(@RequestBody Usuario usuario){
+        Usuario nuevo = servicioUsuarios.postUsuario(usuario);
+    try{
+            //linkea el nuevo user a la uri creada por su matricula
+            return ResponseEntity.created(linkTo(methodOn(UsuariosController.class).
+                                        getUsuario(nuevo.getMatricula())).toUri()).build();
+        }
+    catch(LibroConflictException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e);
+        }
+    }
+
+    @PutMapping("/{matricula}")
+    //actualiza el libro por el isbn
+    public ResponseEntity<Object> modificarUsuario(@PathVariable String matricula, @RequestBody Usuario usuario){
+        try{
+        servicioUsuarios.actualizarUsuario(matricula, usuario);
+        return ResponseEntity.noContent().build();
+        }
+        catch (UsuarioNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); 
+        }
+    }
+
+
+    @DeleteMapping("/{matricula}")
+        ResponseEntity<Object> eliminarUsuario(@PathVariable String matricula){
+        //elimina un usuario por su atricula
+        try{
+            servicioUsuarios.deleteUsuario(matricula);
+            return ResponseEntity.noContent().build();
+            }   
+        catch (UsuarioNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); 
+        }
+    }
+    
 }
