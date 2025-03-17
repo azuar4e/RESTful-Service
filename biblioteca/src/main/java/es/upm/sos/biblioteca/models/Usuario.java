@@ -1,6 +1,6 @@
 package es.upm.sos.biblioteca.models;
 import java.util.Date;
-
+import org.springframework.hateoas.RepresentationModel;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor // Crea un constructor vacío
 @AllArgsConstructor
 
-public class Usuario {
+public class Usuario extends RepresentationModel<Libro> {
     @Id
     // @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String matricula;

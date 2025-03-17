@@ -18,7 +18,8 @@ public class PrestamoModelAssembler extends RepresentationModelAssemblerSupport<
         //poner links para los diferentes metodos
         @Override
         public Prestamo toModel(Prestamo entity) {    //añadimos propia referencia
-            entity.add(linkTo(methodOn(PrestamosController.class).getPrestamoId(entity.getId())).withSelfRel());
-            return entity;
+                    PrestamoModel prestamoModel = new PrestamoModel(entity);
+                    prestamoModel.add(linkTo(methodOn(PrestamosController.class).getPrestamo(entity.getId())).withSelfRel());
+                    return prestamoModel;
         }
 }

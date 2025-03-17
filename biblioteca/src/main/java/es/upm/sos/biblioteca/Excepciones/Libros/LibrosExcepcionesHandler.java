@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 
 @RestControllerAdvice//Captura excepciones de toda la aplicación y devuelve JSON
-public class LibrosExcepciones {
+public class LibrosExcepcionesHandler {
 
 //LIBRO NO ENCONTRADO
 @ExceptionHandler(LibroNotFoundException.class)//Permite capturar una excepción específica y devuelve una respuesta personalizada

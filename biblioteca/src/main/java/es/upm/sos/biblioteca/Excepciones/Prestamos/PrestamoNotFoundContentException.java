@@ -5,14 +5,19 @@ import java.time.LocalDate;
 public class PrestamoNotFoundContentException extends RuntimeException {
 
     public PrestamoNotFoundContentException(String matricula, LocalDate fechaPrestamo, LocalDate fechaDevolucion) {
+        super(construirMensaje(matricula, fechaPrestamo, fechaDevolucion)); // Llamada a super() como primera instrucción
+    }
+
+    // Método auxiliar para construir el mensaje
+    private static String construirMensaje(String matricula, LocalDate fechaPrestamo, LocalDate fechaDevolucion) {
         if (fechaPrestamo == null && fechaDevolucion == null) {
-            super("No se han encontrado prestamos para el numero de matricula: "+ matricula + ".");
+            return "No se han encontrado prestamos para el numero de matricula: " + matricula + ".";
         } else if (fechaPrestamo == null) {
-            super("No se han encontrado prestamos para el numero de matricula: "+ matricula + " y la fecha de devolucion: "+ fechaDevolucion + ".");
+            return "No se han encontrado prestamos para el numero de matricula: " + matricula + " y la fecha de devolucion: " + fechaDevolucion + ".";
         } else if (fechaDevolucion == null) {
-            super("No se han encontrado prestamos para el numero de matricula: "+ matricula + " y la fecha de prestamo: "+ fechaPrestamo + ".");
+            return "No se han encontrado prestamos para el numero de matricula: " + matricula + " y la fecha de prestamo: " + fechaPrestamo + ".";
         } else {
-            super("No se han encontrado prestamos para el numero de matricula: "+ matricula + " y la fecha de prestamo: "+ fechaPrestamo + " y la fecha de devolucion: "+ fechaDevolucion + ".");
+            return "No se han encontrado prestamos para el numero de matricula: " + matricula + ", la fecha de prestamo: " + fechaPrestamo + " y la fecha de devolucion: " + fechaDevolucion + ".";
         }
     }
 
