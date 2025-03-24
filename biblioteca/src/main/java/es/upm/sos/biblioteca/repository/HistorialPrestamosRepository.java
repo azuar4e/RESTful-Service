@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface HistorialPrestamosRepository extends JpaRepository<HistorialPrestamos, Integer> {
 
-    Page<HistorialPrestamos> findByMatricula(String matricula, Pageable paginable);
+    Page<HistorialPrestamos> findByUsuarioMatricula(String matricula, Pageable paginable);
 
     List<HistorialPrestamos> findByUsuarioMatriculaAndFechaDevolucion(String matricula, LocalDate fechaDevolucion);
  

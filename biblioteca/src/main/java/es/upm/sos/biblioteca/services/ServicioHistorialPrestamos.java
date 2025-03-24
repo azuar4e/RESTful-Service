@@ -22,7 +22,7 @@ public class ServicioHistorialPrestamos{
 
     public Page<HistorialPrestamos> getHistorialPrestamosPorMatricula(String matricula, int page, int size){
         Pageable paginable = PageRequest.of(page, size);
-        Page<HistorialPrestamos> historial = repository.findByMatricula(matricula, paginable);
+        Page<HistorialPrestamos> historial = repository.findByUsuarioMatricula(matricula, paginable);
 
         if(historial.isEmpty()){
             throw new HistorialNotFound(matricula);
@@ -61,7 +61,7 @@ public class ServicioHistorialPrestamos{
     //Metodo para obtener los ultimos cinco libros
     public Page<HistorialPrestamos> getUltimosCincoLibrosDevueltos(String matricula) {
         Pageable paginable = PageRequest.of(0, 5);
-        Page<HistorialPrestamos> prestamos = repository.findByMatricula(matricula,paginable);
+        Page<HistorialPrestamos> prestamos = repository.findByUsuarioMatricula(matricula,paginable);
   
         if (prestamos.isEmpty()) { throw new HistorialNotFound(matricula); }
   
@@ -71,7 +71,7 @@ public class ServicioHistorialPrestamos{
     //Metodo para devolver libros devueltos
     public Page<HistorialPrestamos> getUltimosLibrosDevueltos(String matricula, int page, int size) {
     Pageable paginable = PageRequest.of(page, size);
-    Page<HistorialPrestamos> prestamos = repository.findByMatricula(matricula,paginable);
+    Page<HistorialPrestamos> prestamos = repository.findByUsuarioMatricula(matricula,paginable);
     
     if (prestamos.isEmpty()) { throw new HistorialNotFound(matricula); }
 

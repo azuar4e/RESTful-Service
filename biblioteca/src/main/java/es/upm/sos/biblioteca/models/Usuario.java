@@ -1,5 +1,7 @@
 package es.upm.sos.biblioteca.models;
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.hateoas.RepresentationModel;
 
 import jakarta.persistence.*;
@@ -11,19 +13,23 @@ import lombok.*;
 @NoArgsConstructor // Crea un constructor vacío
 @AllArgsConstructor
 
-public class Usuario extends RepresentationModel<Usuario> {
+public class Usuario extends RepresentationModel<Usuario>{
     @Id
-    // @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String matricula;
 
     // @OneToMany
     // @MapsId("pId")
     // @JoinColumn(name = "pId")
+    // private List<Prestamo> prestamo;
     @Column
     private String nombre;
     @Column
     private String correo;
     @Column
     private String fechaNacimiento;
-    private Date sancion;
+    @Column
+    private LocalDate sancion;
+
+    @OneToMany(mappedBy = "usuario")
+    private List<Prestamo> prestamos;
 }

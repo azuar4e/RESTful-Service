@@ -1,17 +1,19 @@
 package es.upm.sos.biblioteca.controllers;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 //import javax.validation.Valid;
 import es.upm.sos.biblioteca.services.ServicioUsuarios;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import es.upm.sos.biblioteca.Excepciones.Libros.LibroConflictException;
+
+import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioConflictException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioNotFoundException;
+import es.upm.sos.biblioteca.models.UsuarioModelAssembler;
 import es.upm.sos.biblioteca.models.Usuario;
 import lombok.*;
 
@@ -22,13 +24,15 @@ import lombok.*;
 public class UsuariosController {
 
 private ServicioUsuarios servicioUsuarios;
+private PagedResourcesAssembler<Usuario> pagedResourcesAssembler;
+    private UsuarioModelAssembler usuarioModelAssembler;
 
     @GetMapping
     public ResponseEntity<Object> getUsuarios( 
             @RequestParam(defaultValue = "0", required = false) int page,
             @RequestParam(defaultValue = "3", required = false) int size){
         Page<Usuario> usuarios = servicioUsuarios.getUsuarios(page, size);
-        return ResponseEntity.ok(usuarios);
+        return new ResponseEntity<>(pagedResourcesAssembler.toModel(usuarios, usuarioModelAssembler),HttpStatus.OK);
     }
     
 
@@ -36,6 +40,7 @@ private ServicioUsuarios servicioUsuarios;
         public ResponseEntity<Object> getUsuario(@PathVariable String matricula){
         try{
             Usuario usuario = servicioUsuarios.getUsuario(matricula);
+            usuario.add(linkTo(methodOn(UsuariosController.class).getUsuario(matricula)).withSelfRel());
             return ResponseEntity.ok(usuario);
         }
         catch(UsuarioNotFoundException e){
@@ -52,7 +57,7 @@ private ServicioUsuarios servicioUsuarios;
             return ResponseEntity.created(linkTo(methodOn(UsuariosController.class).
                                         getUsuario(nuevo.getMatricula())).toUri()).build();
         }
-    catch(LibroConflictException e){
+    catch(UsuarioConflictException e){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e);
         }
     }

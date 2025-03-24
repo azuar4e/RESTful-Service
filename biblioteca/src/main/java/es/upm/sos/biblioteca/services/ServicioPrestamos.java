@@ -1,6 +1,5 @@
 package es.upm.sos.biblioteca.services;
 
-import java.util.List;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -20,7 +19,7 @@ public class ServicioPrestamos{
     private final PrestamosRepository repository;
 
     public Prestamo getPrestamoId(int id) {
-      Optional<Prestamo> prestamo = Optional.of(repository.findById(id));
+      Optional<Prestamo> prestamo = repository.findById(id);
 
       if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
 
@@ -67,11 +66,11 @@ public class ServicioPrestamos{
 
     public void actualizarFechaDevolucion(int id, LocalDate fechaDevolucion) {
 
-      Optional<Prestamo> prestamo = Optional.of(repository.findById(id));
+      Optional<Prestamo> prestamo = repository.findById(id);
       if (!prestamo.isPresent()) { throw new PrestamoNotFoundException((Integer) id, null, null); }
 
       LocalDate fechaActual = LocalDate.now();
-      LocalDate fechaDevolucionActual = repository.findById(id).getFechaDevolucion();
+      LocalDate fechaDevolucionActual = repository.findById(id).get().getFechaDevolucion();
 
       if (fechaActual.isBefore(fechaDevolucionActual)) {
         throw new FechaDevolucionException(fechaActual, fechaDevolucionActual);
@@ -82,13 +81,13 @@ public class ServicioPrestamos{
     }
 
     public void deletePrestamo(int id) {
-      Optional<Prestamo> prestamo = Optional.of(repository.findById(id));
+      Optional<Prestamo> prestamo = Optional.of(repository.findById(id).get());
       if (!prestamo.isPresent()) { throw new PrestamoNotFoundException((Integer) id, null, null); }
       repository.deleteById(id);
     }
 
     public void postPrestamo(Prestamo prestamo) {
-      Optional<Prestamo> prestamoExistente = Optional.of(repository.findById(prestamo.getId()));
+      Optional<Prestamo> prestamoExistente = repository.findById(prestamo.getId());
       if (prestamoExistente.isPresent()) { throw new PrestamoConflictException(prestamo.getId()); }
       repository.save(prestamo);
     }

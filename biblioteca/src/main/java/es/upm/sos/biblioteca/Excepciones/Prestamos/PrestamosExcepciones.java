@@ -29,7 +29,7 @@ public class PrestamosExcepciones {
         return new ErrorMessage(ex.getMessage());
     }
 
-    @ExceptionHandler(PrestamoNotFoundException.class)
+    @ExceptionHandler(PrestamoConflictException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     ErrorMessage PrestamoConflictException(PrestamoConflictException ex) {
         return new ErrorMessage(ex.getMessage());

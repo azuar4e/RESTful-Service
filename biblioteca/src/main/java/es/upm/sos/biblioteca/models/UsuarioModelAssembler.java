@@ -11,12 +11,13 @@ import es.upm.sos.biblioteca.controllers.UsuariosController;
 @Component
 
 public class UsuarioModelAssembler extends RepresentationModelAssemblerSupport<Usuario,Usuario> {
-    public UsuarioModelAssembler(){
+    public UsuarioModelAssembler() {
         super(UsuariosController.class, Usuario.class);
-    }
+        }
     @Override
-    public Usuario toModel(Usuario entity) {
+    public Usuario toModel(Usuario entity) {    //añadimos propia referencia
         entity.add(linkTo(methodOn(UsuariosController.class).getUsuario(entity.getMatricula())).withSelfRel());
         return entity;
-    }
+        }
+
 }

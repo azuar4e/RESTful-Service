@@ -9,10 +9,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import es.upm.sos.biblioteca.Excepciones.Libros.LibroNotFoundException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioConflictException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioNotFoundException;
-import es.upm.sos.biblioteca.models.Libro;
 import es.upm.sos.biblioteca.models.Usuario;
 import es.upm.sos.biblioteca.repository.UsuariosRepository;
 import jakarta.transaction.Transactional;
@@ -23,7 +21,7 @@ import lombok.*;
 
 public class ServicioUsuarios{
 
-    // @Autowired
+    @Autowired
 
     //repositorio al que llamamos para realizar las querys
     private final UsuariosRepository repository;

@@ -28,7 +28,4 @@ public class Libro extends RepresentationModel<Libro>{
 
     @Column(name = "editorial")
     private String editorial;
-
-    // Relación OneToMany con Prestamo
-   // @OneToMany(mappedBy = "libro")  // Relación inversa en la clase Prestamo
 }
