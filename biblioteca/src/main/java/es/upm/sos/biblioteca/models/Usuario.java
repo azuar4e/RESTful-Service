@@ -17,16 +17,15 @@ public class Usuario extends RepresentationModel<Usuario>{
     @Id
     private String matricula;
 
-    // @OneToMany
-    // @MapsId("pId")
-    // @JoinColumn(name = "pId")
-    // private List<Prestamo> prestamo;
-    @Column
+    @Column(nullable = false)
     private String nombre;
-    @Column
+
+    @Column(nullable = false)
     private String correo;
-    @Column
+
+    @Column(name="fecha_nacimiento", nullable = false)
     private String fechaNacimiento;
+
     @Column
     private LocalDate sancion;
 

@@ -14,18 +14,17 @@ import lombok.*;  // Lombok para reducir código
 public class Libro extends RepresentationModel<Libro>{
 
     @Id
-    @Column(name = "isbn") 
     private String isbn;
 
-    @Column(name = "titulo") 
+    @Column(nullable = false) 
     private String titulo;
 
-    @Column(name = "autores")
+    @Column(nullable = false)
     private String autores;
 
-    @Column(name = "edicion")
+    @Column(nullable = false)
     private String edicion;
 
-    @Column(name = "editorial")
+    @Column(nullable = false)
     private String editorial;
 }

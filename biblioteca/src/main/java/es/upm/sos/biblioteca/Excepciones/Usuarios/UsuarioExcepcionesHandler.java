@@ -21,4 +21,10 @@ ErrorMessage UsuarioNotFoundException(UsuarioNotFoundException e){
 ErrorMessage UsuarioConfictException(UsuarioConflictException e){
     return new ErrorMessage(e.getMessage());
 }
+
+@ExceptionHandler(PrestamoYaEnListaException.class)
+@ResponseStatus(HttpStatus.CONFLICT)
+ErrorMessage PrestamoYaEnListaException(PrestamoYaEnListaException e){
+    return new ErrorMessage(e.getMessage());
+}
 }

@@ -10,7 +10,9 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import es.upm.sos.biblioteca.models.Prestamo;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoConflictException;
+import es.upm.sos.biblioteca.Excepciones.Usuarios.PrestamoYaEnListaException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioConflictException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioNotFoundException;
 import es.upm.sos.biblioteca.models.UsuarioModelAssembler;
@@ -61,6 +63,24 @@ private PagedResourcesAssembler<Usuario> pagedResourcesAssembler;
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e);
         }
     }
+
+    @PostMapping("/{matricula}/prestamos")//probar este metodo y ver la uri que devuelve
+    public ResponseEntity<Object> nuevoPrestamo(@PathVariable String matricula, @RequestBody Prestamo prestamo){
+        try{
+            Prestamo nuevo = servicioUsuarios.postPrestamoUsuario(matricula,prestamo);
+            return ResponseEntity.created(linkTo(methodOn(UsuariosController.class).
+                                        getUsuario(matricula)).linkTo(prestamo.getId()).toUri()).build();
+        }
+        catch(UsuarioNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); 
+        }
+        catch(PrestamoConflictException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage()); 
+        }
+    }
+
+//FALTA DELETE MAPING DE PRESTAMO DEL USUARIO
+    
 
     @PutMapping("/{matricula}")
     //actualiza el libro por el isbn

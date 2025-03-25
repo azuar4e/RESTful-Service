@@ -25,4 +25,7 @@ public interface UsuariosRepository extends JpaRepository<Usuario, String> {
     void deleteByMatricula(String matricula);
 
     
+    
+
+    
 }

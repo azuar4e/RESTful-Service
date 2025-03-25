@@ -109,10 +109,32 @@ public class PrestamosController {
     }
 
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/actualizar-devolucion")
     public ResponseEntity<Object> actualizarFechaDevolucion(@PathVariable int id, @RequestBody Prestamo prestamo){
         try{
             servicio.actualizarFechaDevolucion(id, prestamo.getFechaDevolucion());
+            return ResponseEntity.noContent().build();
+        }
+        catch(FechaDevolucionException e){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e);
+        }
+    }
+
+    @PutMapping("/{id}/devolucion")
+    public ResponseEntity<Object> marcarComoDevuelto(@PathVariable int id, @RequestBody Prestamo prestamo){
+        try{
+            servicio.marcarComoDevuelto(id);
+            return ResponseEntity.noContent().build();
+        }
+        catch(FechaDevolucionException e){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e);
+        }
+    }
+
+    @PutMapping("/{id}/incumplimiento")
+    public ResponseEntity<Object> incumplimientoDevolucion(@PathVariable int id, @RequestBody Prestamo prestamo){
+        try{
+            servicio.incumplimientoDevolucion(id);
             return ResponseEntity.noContent().build();
         }
         catch(FechaDevolucionException e){

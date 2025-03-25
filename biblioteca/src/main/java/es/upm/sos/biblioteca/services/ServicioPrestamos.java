@@ -5,7 +5,11 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import es.upm.sos.biblioteca.models.Prestamo;
+import es.upm.sos.biblioteca.models.Usuario;
 import es.upm.sos.biblioteca.repository.PrestamosRepository;
+import es.upm.sos.biblioteca.repository.UsuariosRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import lombok.*;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundException;
@@ -17,6 +21,9 @@ import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoConflictException;
 @AllArgsConstructor
 public class ServicioPrestamos{    
     private final PrestamosRepository repository;
+
+    @Autowired
+    private UsuariosRepository userrepo;
 
     public Prestamo getPrestamoId(int id) {
       Optional<Prestamo> prestamo = repository.findById(id);
@@ -80,9 +87,17 @@ public class ServicioPrestamos{
       repository.save(prestamo.get());
     }
 
+    public void marcarComoDevuelto(int id) {
+
+      Optional<Prestamo> prestamo = repository.findById(id);
+      if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
+
+      prestamo.get().setDevuelto(true);
+    }
+
     public void deletePrestamo(int id) {
-      Optional<Prestamo> prestamo = Optional.of(repository.findById(id).get());
-      if (!prestamo.isPresent()) { throw new PrestamoNotFoundException((Integer) id, null, null); }
+      Optional<Prestamo> prestamo = repository.findById(id);
+      if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
       repository.deleteById(id);
     }
 
@@ -92,4 +107,16 @@ public class ServicioPrestamos{
       repository.save(prestamo);
     }
 
+    public void incumplimientoDevolucion(int id){
+      Optional<Prestamo> prestamo = repository.findById(id);
+      if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
+
+      if (!prestamo.get().isDevuelto()) {
+        if (prestamo.get().getFechaDevolucion().isBefore(LocalDate.now())) {
+          Usuario user = userrepo.getUsuario(prestamo.get().getUsuario().getMatricula());
+          LocalDate sancion = LocalDate.now().plusWeeks(1);
+          user.setSancion(sancion);
+        }
+      }        
+    }
 }
