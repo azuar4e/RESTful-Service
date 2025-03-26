@@ -27,4 +27,10 @@ public class Libro extends RepresentationModel<Libro>{
 
     @Column(nullable = false)
     private String editorial;
+
+    @Column(nullable = false)
+    private int disponibles;
+
+    @Column(nullable = false)
+    private int unidades;
 }

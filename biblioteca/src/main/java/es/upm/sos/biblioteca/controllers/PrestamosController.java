@@ -8,6 +8,7 @@ import es.upm.sos.biblioteca.Excepciones.Prestamos.FechaDevolucionException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoConflictException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundContentException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoVerificadoException;
 import es.upm.sos.biblioteca.models.Prestamo;
 import es.upm.sos.biblioteca.models.PrestamoModelAssembler;
 import es.upm.sos.biblioteca.services.ServicioPrestamos;
@@ -120,10 +121,32 @@ public class PrestamosController {
         }
     }
 
+    // @PutMapping("/{id}/devolucion")
+    // public ResponseEntity<Object> marcarComoDevuelto(@PathVariable int id, @RequestBody Prestamo prestamo){
+    //     try{
+    //         servicio.marcarComoDevuelto(id);
+    //         return ResponseEntity.noContent().build();
+    //     }
+    //     catch(FechaDevolucionException e){
+    //         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e);
+    //     }
+    // }
+
+    // @PutMapping("/{id}/incumplimiento")
+    // public ResponseEntity<Object> incumplimientoDevolucion(@PathVariable int id, @RequestBody Prestamo prestamo){
+    //     try{
+    //         servicio.incumplimientoDevolucion(id);
+    //         return ResponseEntity.noContent().build();
+    //     }
+    //     catch(FechaDevolucionException e){
+    //         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e);
+    //     }
+    // }
+
     @PutMapping("/{id}/devolucion")
-    public ResponseEntity<Object> marcarComoDevuelto(@PathVariable int id, @RequestBody Prestamo prestamo){
+    public ResponseEntity<Object> devolverLibro(@PathVariable int id, @RequestBody Prestamo prestamo){
         try{
-            servicio.marcarComoDevuelto(id);
+            servicio.devolverLibro(id);
             return ResponseEntity.noContent().build();
         }
         catch(FechaDevolucionException e){
@@ -131,13 +154,13 @@ public class PrestamosController {
         }
     }
 
-    @PutMapping("/{id}/incumplimiento")
-    public ResponseEntity<Object> incumplimientoDevolucion(@PathVariable int id, @RequestBody Prestamo prestamo){
+    @PutMapping("/{id}/verificar-devolucion")
+    public ResponseEntity<Object> verificarDevolucion(@PathVariable int id, @RequestBody Prestamo prestamo){
         try{
-            servicio.incumplimientoDevolucion(id);
+            servicio.verificarDevolucion(id);
             return ResponseEntity.noContent().build();
         }
-        catch(FechaDevolucionException e){
+        catch(PrestamoVerificadoException e){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e);
         }
     }

@@ -32,6 +32,9 @@ public class Prestamo extends RepresentationModel<Prestamo> {
     @Column(name = "fecha_devolucion", nullable = false)
     private LocalDate fechaDevolucion;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "boolean default false")
     private boolean devuelto;
+
+    @Column(columnDefinition = "boolean default false")
+    private boolean verificarDevolucion;
 }

@@ -34,4 +34,10 @@ public class PrestamosExcepciones {
     ErrorMessage PrestamoConflictException(PrestamoConflictException ex) {
         return new ErrorMessage(ex.getMessage());
     }
+
+    @ExceptionHandler(PrestamoVerificadoException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ErrorMessage PrestamoVerificadoException(PrestamoVerificadoException ex) {
+        return new ErrorMessage(ex.getMessage());
+    }
 }

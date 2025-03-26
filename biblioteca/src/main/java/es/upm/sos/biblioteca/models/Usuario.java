@@ -26,8 +26,14 @@ public class Usuario extends RepresentationModel<Usuario>{
     @Column(name="fecha_nacimiento", nullable = false)
     private String fechaNacimiento;
 
-    @Column
+    @Column(columnDefinition = "date default null")
     private LocalDate sancion;
+
+    //en caso de aun no haber devuelto un libro de un prestamo pasado
+    //mirar si hay libros por devolver para conceder un prestamo
+    //y sancionar 1 semanilla en el momento en el que devuelva todos los libros
+    @Column(columnDefinition = "integer default 0")
+    private int porDevolver;
 
     @OneToMany(mappedBy = "usuario")
     private List<Prestamo> prestamos;

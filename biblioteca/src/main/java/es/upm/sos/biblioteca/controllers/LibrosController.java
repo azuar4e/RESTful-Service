@@ -134,4 +134,12 @@ public class LibrosController {
         servicio.deleteTodos();
         return ResponseEntity.noContent().build();
     }
+
+
+    @GetMapping("/{isbn}/unidades")
+        public ResponseEntity<Integer> getUnidades(@RequestParam String isbn) {
+            int unidades = servicio.getUnidadesLibro(isbn);
+            return ResponseEntity.ok(unidades);
+        }
+        
 }

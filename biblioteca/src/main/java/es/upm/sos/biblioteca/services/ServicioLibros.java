@@ -93,4 +93,15 @@ public class ServicioLibros {
     public void deleteTodos(){
         repository.deleteAll();
     }
+
+
+    public int getUnidadesLibro(String isbn){
+        Libro libro = repository.findByIsbn(isbn);
+        if(libro == null){
+            throw new LibroNotFoundException(isbn);
+        }
+        return libro.getUnidades();
+    }
+
+
 }

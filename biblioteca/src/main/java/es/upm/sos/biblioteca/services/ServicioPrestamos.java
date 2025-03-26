@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import lombok.*;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoVerificadoException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundContentException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.FechaDevolucionException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoConflictException;
@@ -87,14 +88,6 @@ public class ServicioPrestamos{
       repository.save(prestamo.get());
     }
 
-    public void marcarComoDevuelto(int id) {
-
-      Optional<Prestamo> prestamo = repository.findById(id);
-      if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
-
-      prestamo.get().setDevuelto(true);
-    }
-
     public void deletePrestamo(int id) {
       Optional<Prestamo> prestamo = repository.findById(id);
       if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
@@ -107,16 +100,38 @@ public class ServicioPrestamos{
       repository.save(prestamo);
     }
 
-    public void incumplimientoDevolucion(int id){
+    public void devolverLibro(int id) {
+
       Optional<Prestamo> prestamo = repository.findById(id);
       if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
 
-      if (!prestamo.get().isDevuelto()) {
-        if (prestamo.get().getFechaDevolucion().isBefore(LocalDate.now())) {
-          Usuario user = userrepo.getUsuario(prestamo.get().getUsuario().getMatricula());
+      if (prestamo.get().getFechaDevolucion().isBefore(LocalDate.now())) {
+        if (!prestamo.get().isVerificarDevolucion()) { verificarDevolucion(id); }
+        Usuario user = userrepo.getUsuario(prestamo.get().getUsuario().getMatricula());
+        user.setPorDevolver(user.getPorDevolver() - 1);
+
+        if (user.getPorDevolver() == 0) {
           LocalDate sancion = LocalDate.now().plusWeeks(1);
           user.setSancion(sancion);
         }
-      }        
+        userrepo.save(user);
+      }
+      prestamo.get().setDevuelto(true);
+      repository.save(prestamo.get());
+    }
+
+    public void verificarDevolucion(int id) {
+      Optional<Prestamo> prestamo = repository.findById(id);
+      if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
+
+      if (prestamo.get().getFechaDevolucion().isBefore(LocalDate.now()) 
+        && !prestamo.get().isDevuelto() && !prestamo.get().isVerificarDevolucion()) {
+
+        prestamo.get().setVerificarDevolucion(true);
+        Usuario user = userrepo.getUsuario(prestamo.get().getUsuario().getMatricula());
+        user.setPorDevolver(user.getPorDevolver() + 1);
+        userrepo.save(user);
+        repository.save(prestamo.get());
+      } else { throw new PrestamoVerificadoException(id); }
     }
 }
