@@ -4,6 +4,9 @@ import java.util.List;
 
 import org.springframework.hateoas.RepresentationModel;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -36,5 +39,6 @@ public class Usuario extends RepresentationModel<Usuario>{
     private int porDevolver;
 
     @OneToMany(mappedBy = "usuario")
+    @JsonManagedReference
     private List<Prestamo> prestamos;
 }

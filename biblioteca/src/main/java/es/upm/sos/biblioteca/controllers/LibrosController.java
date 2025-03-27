@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/biblioteca.api/Libros")
+@RequestMapping("/biblioteca.api/libros")
 @AllArgsConstructor
 public class LibrosController {
 

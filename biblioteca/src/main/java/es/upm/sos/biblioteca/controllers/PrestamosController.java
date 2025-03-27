@@ -25,13 +25,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
+
 @RestController
-@RequestMapping("/prestamos")
+@RequestMapping("/biblioteca.api/prestamos")
 @AllArgsConstructor
 public class PrestamosController {
     private ServicioPrestamos servicio;
     private PagedResourcesAssembler<Prestamo> pagedResourcesAssembler;
     private PrestamoModelAssembler prestamoModelAssembler;
+
+    @GetMapping
+    public ResponseEntity<Object> getPrestamos(
+        @RequestParam(defaultValue = "0", required = false) int page,
+        @RequestParam(defaultValue = "3", required = false) int size) {
+        Page<Prestamo> prestamos = servicio.getPrestamos(page, size);
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(prestamos, prestamoModelAssembler));
+    }
+    
 
     //obtiene el prestamo a partir de la matricula y el isbn
     @GetMapping(params = {"matricula", "isbn"})
@@ -47,10 +57,10 @@ public class PrestamosController {
         }
     }
 
-    @GetMapping(params = "pId")
-    public ResponseEntity<Object> getPrestamo(@RequestParam int pId) {
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> getPrestamo(@PathVariable int id) {
         try {
-            Prestamo prestamo = servicio.getPrestamoId(pId);
+            Prestamo prestamo = servicio.getPrestamoId(id);
             return ResponseEntity.ok(prestamoModelAssembler.toModel(prestamo));
         } catch (PrestamoNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -120,28 +130,6 @@ public class PrestamosController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e);
         }
     }
-
-    // @PutMapping("/{id}/devolucion")
-    // public ResponseEntity<Object> marcarComoDevuelto(@PathVariable int id, @RequestBody Prestamo prestamo){
-    //     try{
-    //         servicio.marcarComoDevuelto(id);
-    //         return ResponseEntity.noContent().build();
-    //     }
-    //     catch(FechaDevolucionException e){
-    //         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e);
-    //     }
-    // }
-
-    // @PutMapping("/{id}/incumplimiento")
-    // public ResponseEntity<Object> incumplimientoDevolucion(@PathVariable int id, @RequestBody Prestamo prestamo){
-    //     try{
-    //         servicio.incumplimientoDevolucion(id);
-    //         return ResponseEntity.noContent().build();
-    //     }
-    //     catch(FechaDevolucionException e){
-    //         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e);
-    //     }
-    // }
 
     @PutMapping("/{id}/devolucion")
     public ResponseEntity<Object> devolverLibro(@PathVariable int id, @RequestBody Prestamo prestamo){

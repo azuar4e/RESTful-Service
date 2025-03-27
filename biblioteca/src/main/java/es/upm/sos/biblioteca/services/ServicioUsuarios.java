@@ -47,6 +47,7 @@ public class ServicioUsuarios{
             throw new PrestamoConflictException(prestamo.getId());
         }
         user.getPrestamos().add(prestamo);
+        repository.save(user);
         return prestamo;
     }
 

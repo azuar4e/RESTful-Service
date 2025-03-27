@@ -4,10 +4,13 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+
+import es.upm.sos.biblioteca.models.Libro;
 import es.upm.sos.biblioteca.models.Prestamo;
 import es.upm.sos.biblioteca.models.Usuario;
 import es.upm.sos.biblioteca.repository.PrestamosRepository;
 import es.upm.sos.biblioteca.repository.UsuariosRepository;
+import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -17,6 +20,9 @@ import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoVerificadoException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundContentException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.FechaDevolucionException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoConflictException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.LibroNoDisponibleException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.UsuarioDevolucionesPendientesException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.UsuarioSancionadoException;
 
 @Service
 @AllArgsConstructor
@@ -25,6 +31,11 @@ public class ServicioPrestamos{
 
     @Autowired
     private UsuariosRepository userrepo;
+
+    public Page<Prestamo> getPrestamos(int page, int size){
+    Pageable paginable = PageRequest.of(page, size);
+      return repository.findAll(paginable);
+    }
 
     public Prestamo getPrestamoId(int id) {
       Optional<Prestamo> prestamo = repository.findById(id);
@@ -72,6 +83,7 @@ public class ServicioPrestamos{
       return prestamos;
     }
 
+    @Transactional
     public void actualizarFechaDevolucion(int id, LocalDate fechaDevolucion) {
 
       Optional<Prestamo> prestamo = repository.findById(id);
@@ -88,18 +100,17 @@ public class ServicioPrestamos{
       repository.save(prestamo.get());
     }
 
-    public void deletePrestamo(int id) {
-      Optional<Prestamo> prestamo = repository.findById(id);
-      if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
-      repository.deleteById(id);
-    }
-
+    @Transactional
     public void postPrestamo(Prestamo prestamo) {
       Optional<Prestamo> prestamoExistente = repository.findById(prestamo.getId());
       if (prestamoExistente.isPresent()) { throw new PrestamoConflictException(prestamo.getId()); }
+      if (prestamo.getLibro().getDisponibles() == 0) { throw new LibroNoDisponibleException(prestamo.getLibro().getIsbn()); }
+      if (prestamo.getUsuario().getPorDevolver() != 0) { throw new UsuarioDevolucionesPendientesException(prestamo.getUsuario().getMatricula()); }
+      if (prestamo.getUsuario().getSancion() != null) { throw new UsuarioSancionadoException(prestamo.getUsuario().getMatricula()); } 
       repository.save(prestamo);
     }
 
+    @Transactional
     public void devolverLibro(int id) {
 
       Optional<Prestamo> prestamo = repository.findById(id);
@@ -120,6 +131,7 @@ public class ServicioPrestamos{
       repository.save(prestamo.get());
     }
 
+    @Transactional
     public void verificarDevolucion(int id) {
       Optional<Prestamo> prestamo = repository.findById(id);
       if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
@@ -133,5 +145,18 @@ public class ServicioPrestamos{
         userrepo.save(user);
         repository.save(prestamo.get());
       } else { throw new PrestamoVerificadoException(id); }
+    }
+
+
+    @Transactional
+    public void deletePrestamo(int id) {
+      Optional<Prestamo> prestamo = repository.findById(id);
+      if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
+      Usuario usuario = prestamo.get().getUsuario();
+      if (usuario != null) {
+        usuario.getPrestamos().remove(prestamo.get()); 
+        userrepo.save(usuario);
+      }
+      repository.deleteById(id);
     }
 }

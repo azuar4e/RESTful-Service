@@ -53,9 +53,9 @@ private PagedResourcesAssembler<Usuario> pagedResourcesAssembler;
 
     @PostMapping
     public ResponseEntity<Object> añadirUsuario(@RequestBody Usuario usuario){
-        Usuario nuevo = servicioUsuarios.postUsuario(usuario);
+        
     try{
-            //linkea el nuevo user a la uri creada por su matricula
+            Usuario nuevo = servicioUsuarios.postUsuario(usuario);
             return ResponseEntity.created(linkTo(methodOn(UsuariosController.class).
                                         getUsuario(nuevo.getMatricula())).toUri()).build();
         }

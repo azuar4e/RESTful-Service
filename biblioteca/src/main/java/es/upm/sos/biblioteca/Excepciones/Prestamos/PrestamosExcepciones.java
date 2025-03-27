@@ -40,4 +40,22 @@ public class PrestamosExcepciones {
     ErrorMessage PrestamoVerificadoException(PrestamoVerificadoException ex) {
         return new ErrorMessage(ex.getMessage());
     }
+
+    @ExceptionHandler(LibroNoDisponibleException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ErrorMessage LibroNoDisponibleException(LibroNoDisponibleException ex) {
+        return new ErrorMessage(ex.getMessage());
+    }
+
+    @ExceptionHandler(UsuarioDevolucionesPendientesException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ErrorMessage UsuarioDevolucionesPendientesException(UsuarioDevolucionesPendientesException ex) {
+        return new ErrorMessage(ex.getMessage());
+    }
+
+    @ExceptionHandler(UsuarioSancionadoException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ErrorMessage UsuarioSancionadoException(UsuarioSancionadoException ex) {
+        return new ErrorMessage(ex.getMessage());
+    }
 }
