@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import es.upm.sos.biblioteca.models.Libro;
 import es.upm.sos.biblioteca.models.Prestamo;
 import es.upm.sos.biblioteca.models.Usuario;
+import es.upm.sos.biblioteca.repository.LibrosRepository;
 import es.upm.sos.biblioteca.repository.PrestamosRepository;
 import es.upm.sos.biblioteca.repository.UsuariosRepository;
 import jakarta.transaction.Transactional;
@@ -18,16 +19,22 @@ import lombok.*;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoVerificadoException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundContentException;
+import es.upm.sos.biblioteca.Excepciones.Libros.LibroNotFoundException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.FechaDevolucionException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoConflictException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.LibroNoDisponibleException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.UsuarioDevolucionesPendientesException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.UsuarioSancionadoException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 @AllArgsConstructor
 public class ServicioPrestamos{    
     private final PrestamosRepository repository;
+    private final LibrosRepository repoLibro;
+    private static final Logger logger = LoggerFactory.getLogger(ServicioPrestamos.class);
 
     @Autowired
     private UsuariosRepository userrepo;
@@ -102,9 +109,13 @@ public class ServicioPrestamos{
 
     @Transactional
     public void postPrestamo(Prestamo prestamo) {
+      Libro libro = repoLibro.findByIsbn(prestamo.getLibro().getIsbn());
+      int cantidad = libro.getDisponibles();
+      logger.info("Servicio postPrestamo");
       Optional<Prestamo> prestamoExistente = repository.findById(prestamo.getId());
+      logger.info("Cantidad: "+cantidad);
       if (prestamoExistente.isPresent()) { throw new PrestamoConflictException(prestamo.getId()); }
-      if (prestamo.getLibro().getDisponibles() == 0) { throw new LibroNoDisponibleException(prestamo.getLibro().getIsbn()); }
+      if(cantidad == 0) { throw new LibroNotFoundException(libro.getIsbn()); }
       if (prestamo.getUsuario().getPorDevolver() != 0) { throw new UsuarioDevolucionesPendientesException(prestamo.getUsuario().getMatricula()); }
       if (prestamo.getUsuario().getSancion() != null) { throw new UsuarioSancionadoException(prestamo.getUsuario().getMatricula()); } 
       repository.save(prestamo);

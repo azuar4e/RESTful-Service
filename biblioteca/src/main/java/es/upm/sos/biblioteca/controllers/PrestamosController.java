@@ -24,6 +24,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 
 @RestController
@@ -33,6 +36,7 @@ public class PrestamosController {
     private ServicioPrestamos servicio;
     private PagedResourcesAssembler<Prestamo> pagedResourcesAssembler;
     private PrestamoModelAssembler prestamoModelAssembler;
+    private static final Logger logger = LoggerFactory.getLogger(PrestamosController.class);
 
     @GetMapping
     public ResponseEntity<Object> getPrestamos(
@@ -168,10 +172,12 @@ public class PrestamosController {
     public ResponseEntity<Object> postPrestamo(@RequestBody Prestamo prestamo) {
         try{
             servicio.postPrestamo(prestamo);
+            logger.info("Se llamo al endpoint /prestamo");
             return ResponseEntity.created(linkTo(methodOn(PrestamosController.class).
                                             getPrestamo(prestamo.getId())).toUri()).build();
         }   
         catch (PrestamoConflictException e) {
+            logger.info("Ha fallado el endpoint /prestamo");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage()); 
         }
     }
