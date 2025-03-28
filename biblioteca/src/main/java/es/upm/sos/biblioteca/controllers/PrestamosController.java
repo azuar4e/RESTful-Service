@@ -5,6 +5,7 @@ import java.util.*;
 import java.time.LocalDate;
 
 import es.upm.sos.biblioteca.Excepciones.Prestamos.FechaDevolucionException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.LibroNoDisponibleException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoConflictException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundContentException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundException;
