@@ -20,6 +20,8 @@ public interface UsuariosRepository extends JpaRepository<Usuario, String> {
     @Query("SELECT u FROM Usuario u")
     Page<Usuario> getUsuarios(org.springframework.data.domain.Pageable paginable);
 
+    Usuario findByCorreo(String correo);
+
     Usuario findByMatricula(String matricula);
 
     void deleteByMatricula(String matricula);

@@ -21,6 +21,7 @@ import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoVerificadoException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundContentException;
 import es.upm.sos.biblioteca.Excepciones.Libros.LibroNotFoundException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.FechaDevolucionException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.FechasNoValidasException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoConflictException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.LibroNoDisponibleException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.UsuarioDevolucionesPendientesException;
@@ -119,6 +120,7 @@ public class ServicioPrestamos{
       if(cantidad == 0) { throw new LibroNoDisponibleException(libro.getIsbn()); }
       if (prestamo.getUsuario().getPorDevolver() != 0) { throw new UsuarioDevolucionesPendientesException(prestamo.getUsuario().getMatricula()); }
       if (prestamo.getUsuario().getSancion() != null) { throw new UsuarioSancionadoException(prestamo.getUsuario().getMatricula()); } 
+      if(prestamo.getFechaDevolucion().isBefore(prestamo.getFechaPrestamo())) { throw new FechasNoValidasException(prestamo.getFechaPrestamo(), prestamo.getFechaDevolucion()); }
       libro.setDisponibles(cantidad-1);
       logger.info("Cantidad: "+ libro.getDisponibles());
       repoLibro.save(libro);
@@ -142,7 +144,10 @@ public class ServicioPrestamos{
         }
         userrepo.save(user);
       }
+      Libro libro = prestamo.get().getLibro();
+      libro.setDisponibles(libro.getDisponibles()+1);
       prestamo.get().setDevuelto(true);
+      repoLibro.save(libro);
       repository.save(prestamo.get());
     }
 

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import es.upm.sos.biblioteca.models.Prestamo;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoConflictException;
+import es.upm.sos.biblioteca.Excepciones.Usuarios.CorreoRegistradoException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.PrestamoYaEnListaException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioConflictException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioNotFoundException;
@@ -62,6 +63,9 @@ private PagedResourcesAssembler<Usuario> pagedResourcesAssembler;
     catch(UsuarioConflictException e){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e);
         }
+    catch(CorreoRegistradoException e){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e);
+    }
     }
 
     @PostMapping("/{matricula}/prestamos")//probar este metodo y ver la uri que devuelve
@@ -83,7 +87,6 @@ private PagedResourcesAssembler<Usuario> pagedResourcesAssembler;
     
 
     @PutMapping("/{matricula}")
-    //actualiza el libro por el isbn
     public ResponseEntity<Object> modificarUsuario(@PathVariable String matricula, @RequestBody Usuario usuario){
         try{
         servicioUsuarios.actualizarUsuario(matricula, usuario);

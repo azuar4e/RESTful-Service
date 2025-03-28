@@ -5,6 +5,7 @@ import java.util.*;
 import java.time.LocalDate;
 
 import es.upm.sos.biblioteca.Excepciones.Prestamos.FechaDevolucionException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.FechasNoValidasException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.LibroNoDisponibleException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoConflictException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundContentException;
@@ -180,6 +181,9 @@ public class PrestamosController {
         catch (PrestamoConflictException e) {
             logger.info("Ha fallado el endpoint /prestamo");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage()); 
+        }
+        catch (FechasNoValidasException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());  
         }
     }
 }

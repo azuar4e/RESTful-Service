@@ -22,6 +22,6 @@ public interface LibrosRepository extends JpaRepository<Libro, String> {
     Page<Libro> findLibrosContenido(@Param("contenido") String contenido, Pageable pageable);
 
 
-    @Query(value = "SELECT * FROM libro WHERE isbn NOT IN (SELECT libro_id FROM prestamo)", nativeQuery = true)
+    @Query("SELECT l FROM Libro l WHERE l.disponibles > 0")
     Page<Libro> findLibrosDisponibles(Pageable paginable);
 }

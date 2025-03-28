@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoConflictException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundException;
+import es.upm.sos.biblioteca.Excepciones.Usuarios.CorreoRegistradoException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioConflictException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioNotFoundException;
 import es.upm.sos.biblioteca.models.Usuario;
@@ -36,6 +37,7 @@ public class ServicioUsuarios{
     public Usuario postUsuario(Usuario u){
         Usuario esta = repository.getUsuario(u.getMatricula());
         if(esta!=null){throw new UsuarioConflictException(esta.getMatricula()); }
+        if(repository.findByCorreo(u.getCorreo())!=null) { throw new CorreoRegistradoException(); }
         return repository.save(u);
     }
 
