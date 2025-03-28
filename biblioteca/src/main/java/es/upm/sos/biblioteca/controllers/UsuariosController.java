@@ -2,11 +2,16 @@ package es.upm.sos.biblioteca.controllers;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
+import java.time.LocalDate;
+
+import es.upm.sos.biblioteca.services.ServicioPrestamos;
 //import javax.validation.Valid;
 import es.upm.sos.biblioteca.services.ServicioUsuarios;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,14 +25,32 @@ import es.upm.sos.biblioteca.models.UsuarioModelAssembler;
 import es.upm.sos.biblioteca.models.Usuario;
 import lombok.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 @RestController
 @RequestMapping("/biblioteca.api/users")
 @AllArgsConstructor
 public class UsuariosController {
 
-private ServicioUsuarios servicioUsuarios;
-private PagedResourcesAssembler<Usuario> pagedResourcesAssembler;
+    @Data // Lombok genera automáticamente los getters, setters, equals, hashCode, y toString
+    @NoArgsConstructor // Constructor vacío
+    @AllArgsConstructor // Constructor con todos los campos
+    class ActividadUsuario {
+        private String matricula;
+        private String nombre;
+        private String correo;
+        private String fechaNacimiento;
+        private LocalDate sancion;
+        private int porDevolver;
+        private Page<Prestamo> prestamosActuales;
+        private Page<Prestamo> historialPrestamos;
+    }
+
+    private ServicioUsuarios servicioUsuarios;
+    private ServicioPrestamos servicioPrestamos;
+    private PagedResourcesAssembler<Usuario> pagedResourcesAssembler;
     private UsuarioModelAssembler usuarioModelAssembler;
 
     @GetMapping
@@ -45,6 +68,28 @@ private PagedResourcesAssembler<Usuario> pagedResourcesAssembler;
             Usuario usuario = servicioUsuarios.getUsuario(matricula);
             usuario.add(linkTo(methodOn(UsuariosController.class).getUsuario(matricula)).withSelfRel());
             return ResponseEntity.ok(usuario);
+        }
+        catch(UsuarioNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
+        }
+    }
+
+    @GetMapping("/{matricula}/actividad")
+    public ResponseEntity<Object> getUsuarioActividad(@PathVariable String matricula){
+        try{
+            Usuario usuario = servicioUsuarios.getUsuario(matricula);
+            ActividadUsuario actividadUsuario = new ActividadUsuario(matricula, null, null, null, null, 0, null, null);
+            actividadUsuario.setNombre(usuario.getNombre());
+            actividadUsuario.setCorreo(usuario.getCorreo());
+            actividadUsuario.setFechaNacimiento(usuario.getFechaNacimiento());
+            actividadUsuario.setSancion(usuario.getSancion());
+            actividadUsuario.setPorDevolver(usuario.getPorDevolver());
+            actividadUsuario.setPrestamosActuales(servicioPrestamos.getPrestamosActuales(matricula, 0, 5));
+            actividadUsuario.setHistorialPrestamos(servicioPrestamos.getUltimosLibrosDevueltos(matricula, 0, 5));
+            EntityModel<ActividadUsuario> respuesta = EntityModel.of(actividadUsuario);
+
+        respuesta.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UsuariosController.class).getUsuarioActividad(matricula)).withSelfRel());
+            return ResponseEntity.ok(respuesta);
         }
         catch(UsuarioNotFoundException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);

@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 
 
 
+
+
 @RestController
 @RequestMapping("/biblioteca.api/prestamos")
 @AllArgsConstructor
@@ -62,6 +64,19 @@ public class PrestamosController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
+
+    @GetMapping("/{matricula}/ultimos-libros-devueltos")
+    public ResponseEntity<Object> getUltimosLibrosDevueltos(@PathVariable String matricula,
+    @RequestParam(defaultValue = "0", required = false) int page,
+    @RequestParam(defaultValue = "5", required = false) int size) {
+        try {
+            Page<Prestamo> prestamo = servicio.getUltimosLibrosDevueltos(matricula, page, size);
+            return ResponseEntity.ok(pagedResourcesAssembler.toModel(prestamo, prestamoModelAssembler));
+        } catch (PrestamoNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getPrestamo(@PathVariable int id) {

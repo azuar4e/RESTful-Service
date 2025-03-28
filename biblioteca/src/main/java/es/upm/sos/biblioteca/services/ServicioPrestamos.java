@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 public class ServicioPrestamos{    
     private final PrestamosRepository repository;
     private final LibrosRepository repoLibro;
+    private final UsuariosRepository userRepo;
     private static final Logger logger = LoggerFactory.getLogger(ServicioPrestamos.class);
 
     @Autowired
@@ -56,7 +57,8 @@ public class ServicioPrestamos{
 
     public Page<Prestamo> getPrestamosMatricula(String matricula, int page, int size){
       Pageable paginable = PageRequest.of(page, size);
-      Page<Prestamo> prestamos = repository.findByUsuarioMatricula(matricula,paginable);
+      Usuario user = userRepo.findByMatricula(matricula);
+      Page<Prestamo> prestamos = repository.findByUsuarioMatriculaAndDevueltoFalse(matricula,paginable);
 
       if (prestamos.isEmpty()) { throw new PrestamoNotFoundException(null, matricula, null); }
 
@@ -89,6 +91,20 @@ public class ServicioPrestamos{
       Pageable paginable = PageRequest.of(page, size);
       Page<Prestamo> prestamos = repository.findByUsuarioMatriculaAndFechaPrestamoAndFechaDevolucion(matricula, fechaPrestamo, fechaDevolucion, paginable);
       if (prestamos == null) { throw new PrestamoNotFoundContentException(matricula, fechaPrestamo, fechaDevolucion); }
+      return prestamos;
+    }
+
+    public Page<Prestamo> getUltimosLibrosDevueltos(String matricula, int page, int size) {
+      Pageable paginable = PageRequest.of(page, size);
+      Page<Prestamo> prestamos = repository.getUltimosLibrosDevueltos(matricula, paginable);
+      if (prestamos == null) { throw new PrestamoNotFoundContentException(matricula, null, null); }
+      return prestamos;
+    }
+
+    public Page<Prestamo> getPrestamosActuales(String matricula, int page, int size) {
+      Pageable paginable = PageRequest.of(page, size);
+      Page<Prestamo> prestamos = repository.getPrestamosActuales(matricula, paginable);
+      if (prestamos == null) { throw new PrestamoNotFoundContentException(matricula, null, null); }
       return prestamos;
     }
 

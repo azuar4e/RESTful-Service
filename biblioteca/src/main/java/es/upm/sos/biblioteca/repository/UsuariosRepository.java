@@ -1,10 +1,11 @@
 package es.upm.sos.biblioteca.repository;
 import es.upm.sos.biblioteca.models.Usuario;
 
-
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface UsuariosRepository extends JpaRepository<Usuario, String> {
 
@@ -24,10 +25,5 @@ public interface UsuariosRepository extends JpaRepository<Usuario, String> {
 
     Usuario findByMatricula(String matricula);
 
-    void deleteByMatricula(String matricula);
-
-    
-    
-
-    
+    void deleteByMatricula(String matricula);    
 }
