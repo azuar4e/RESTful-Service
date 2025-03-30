@@ -1,0 +1,201 @@
+GET http://localhost:8080/biblioteca.api/users
+
+###Registrar Usuario
+POST http://localhost:8080/biblioteca.api/users
+Content-Type: application/json
+
+{
+    "matricula": "4",
+    "nombre": "Angel",
+    "correo": "angel@gmail.com",
+    "fechaNacimiento": "2004-12-17",
+    "sancion": null,
+    "porDevolver": 0
+}
+
+###Registrar Usuario
+POST http://localhost:8080/biblioteca.api/users
+Content-Type: application/json
+
+{
+    "matricula": "2",
+    "nombre": "Alvaro",
+    "correo": "alvarograduado@gmail.com",
+    "fechaNacimiento": "2004-12-28",
+    "sancion": null,
+    "porDevolver": 0
+}
+
+###Registrar Usuario
+POST http://localhost:8080/biblioteca.api/users
+Content-Type: application/json
+
+{
+    "matricula": "3",
+    "nombre": "segarro segarrez",
+    "correo": "deudor.delibros@gmail.com",
+    "fechaNacimiento": "2006-07-04",
+    "sancion": null,
+    "porDevolver": 0
+}
+
+###Lista de usuarios
+GET http://localhost:8080/biblioteca.api/users
+
+###Get de usuario
+GET http://localhost:8080/biblioteca.api/users/3
+
+###Actualizar user:
+PUT http://localhost:8080/biblioteca.api/users/3
+Content-Type: application/json
+
+{
+    "matricula": "3",
+    "nombre": "pedro mohamed sanchez",
+    "correo": "deudor.delibros@gmail.com",
+    "fechaNacimiento": "2006-07-04",
+    "sancion": null,
+    "porDevolver": 0
+}
+
+
+###Delete de usuarios
+DELETE http://localhost:8080/biblioteca.api/users/3
+
+###Creamos nuevos libros
+POST http://localhost:8080/biblioteca.api/libros
+Content-Type: application/json
+
+{
+    "isbn": "1-2-3-4",
+    "titulo": "Penesote Mágico",
+    "autores": "Penesote Mágico",
+    "edicion": "23",
+    "editorial": "Santillana",
+    "disponibles": 10,
+    "unidades": 10
+}
+
+###Creamos nuevos libros
+POST http://localhost:8080/biblioteca.api/libros
+Content-Type: application/json
+
+{
+    "isbn": "5-6-7-8",
+    "titulo": "Lo que Pedro Mohamed Sánchez se llevó",
+    "autores": "Penesote Mágico",
+    "edicion": "17",
+    "editorial": "Santillana",
+    "disponibles": 10,
+    "unidades": 10
+}
+
+###Publicar libro
+POST http://localhost:8080/biblioteca.api/libros
+Content-Type: application/json
+
+{
+    "isbn": "9-10-11-12",
+    "titulo": "No hay moros en la costa",
+    "autores": "Penesote Mágico",
+    "edicion": "12",
+    "editorial": "Santillana",
+    "disponibles": 10,
+    "unidades": 10
+}
+
+###Obtener todos los libros
+GET http://localhost:8080/biblioteca.api/libros
+
+###Obtener un libro
+GET http://localhost:8080/biblioteca.api/libros/1-2-3-4
+
+###Eliminar un libro
+DELETE http://localhost:8080/biblioteca.api/libros/9-10-11-12
+
+###POST Prestamo 1
+POST http://localhost:8080/biblioteca.api/prestamos
+Content-Type: application/json
+
+{
+    "usuario": {
+        "matricula": "1"
+    },
+    "libro": {
+        "isbn": "1-2-3-4"
+    },
+    "fechaPrestamo": "2025-03-28",
+    "fechaDevolucion": "2025-04-10"
+}
+
+###POST Prestamo 2
+POST http://localhost:8080/biblioteca.api/prestamos
+Content-Type: application/json
+
+{
+    "usuario": {
+        "matricula": "1"
+    },
+    "libro": {
+        "isbn": "5-6-7-8"
+    },
+    "fechaPrestamo": "2025-03-28",
+    "fechaDevolucion": "2025-04-10"
+}
+
+###POST Prestamo 3
+POST http://localhost:8080/biblioteca.api/prestamos
+Content-Type: application/json
+
+{
+    "usuario": {
+        "matricula": "2"
+    },
+    "libro": {
+        "isbn": "1-2-3-4"
+    },
+    "fechaPrestamo": "2025-03-16",
+    "fechaDevolucion": "2025-03-30"
+}
+
+###POST Prestamo 4
+POST http://localhost:8080/biblioteca.api/prestamos
+Content-Type: application/json
+
+{
+    "usuario": {
+        "matricula": "2"
+    },
+    "libro": {
+        "isbn": "5-6-7-8"
+    },
+    "fechaPrestamo": "2025-03-28",
+    "fechaDevolucion": "2025-04-10"
+}
+
+###Get prestamos de un usuario
+GET http://localhost:8080/biblioteca.api/users/2/prestamos
+
+###Get prestamos de un usuario con fecha de prestamo
+GET http://localhost:8080/biblioteca.api/prestamos?matricula=2&fechaPrestamo=2025-03-28
+
+###Get prestamos de un usuario con fecha de devolucion
+GET http://localhost:8080/biblioteca.api/prestamos?matricula=1&fechaDevolucion=2025-04-10
+
+###Get prestamos de un usuario con fecha de devolucion y fecha de prestamo
+GET http://localhost:8080/biblioteca.api/prestamos?matricula=2&fechaPrestamo=2025-03-28&fechaDevolucion=2025-04-10
+
+###Get prestamos por matricula e isbn
+GET http://localhost:8080/biblioteca.api/prestamos?matricula=2&isbn=1-2-3-4
+
+###Verificamos los prestamos de un usuario
+GET http://localhost:8080/biblioteca.api/prestamos?matricula=1
+
+###Prueba de devolucion
+GET http://localhost:8080/biblioteca.api/prestamos/1/devolucion
+
+###Prueba de verificacion
+GET http://localhost:8080/biblioteca.api/prestamos?matricula=1
+
+###Actualizar fecha de devolucion
+PUT http://localhost:8080/biblioteca.api/prestamos/2/actualizar-devolucion?fechaDevolucion=2025-04-17

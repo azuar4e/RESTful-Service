@@ -88,7 +88,7 @@ public class UsuariosController {
             actividadUsuario.setHistorialPrestamos(servicioPrestamos.getUltimosLibrosDevueltos(matricula, 0, 5));
             EntityModel<ActividadUsuario> respuesta = EntityModel.of(actividadUsuario);
 
-        respuesta.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UsuariosController.class).getUsuarioActividad(matricula)).withSelfRel());
+            respuesta.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UsuariosController.class).getUsuarioActividad(matricula)).withSelfRel());
             return ResponseEntity.ok(respuesta);
         }
         catch(UsuarioNotFoundException e){
@@ -113,6 +113,7 @@ public class UsuariosController {
     }
     }
 
+    // cambiar por un getmapping
     @PostMapping("/{matricula}/prestamos")//probar este metodo y ver la uri que devuelve
     public ResponseEntity<Object> nuevoPrestamo(@PathVariable String matricula, @RequestBody Prestamo prestamo){
         try{
@@ -134,8 +135,8 @@ public class UsuariosController {
     @PutMapping("/{matricula}")
     public ResponseEntity<Object> modificarUsuario(@PathVariable String matricula, @RequestBody Usuario usuario){
         try{
-        servicioUsuarios.actualizarUsuario(matricula, usuario);
-        return ResponseEntity.noContent().build();
+            servicioUsuarios.actualizarUsuario(matricula, usuario);
+            return ResponseEntity.noContent().build();
         }
         catch (UsuarioNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); 

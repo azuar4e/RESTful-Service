@@ -142,9 +142,9 @@ public class PrestamosController {
 
 
     @PutMapping("/{id}/actualizar-devolucion")
-    public ResponseEntity<Object> actualizarFechaDevolucion(@PathVariable int id, @RequestBody Prestamo prestamo){
+    public ResponseEntity<Object> actualizarFechaDevolucion(@PathVariable int id, @RequestParam LocalDate fechaDevolucion, @RequestBody Prestamo prestamo){
         try{
-            servicio.actualizarFechaDevolucion(id, prestamo.getFechaDevolucion());
+            servicio.actualizarFechaDevolucion(id, fechaDevolucion);
             return ResponseEntity.noContent().build();
         }
         catch(FechaDevolucionException e){
