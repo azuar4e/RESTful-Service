@@ -154,7 +154,7 @@ public class ServicioPrestamos{
         Usuario user = userrepo.getUsuario(prestamo.get().getUsuario().getMatricula());
         user.setPorDevolver(user.getPorDevolver() - 1);
 
-        if (user.getPorDevolver() == 0) {
+        if (user.getPorDevolver() != 0) {
           LocalDate sancion = LocalDate.now().plusWeeks(1);
           user.setSancion(sancion);
         }
