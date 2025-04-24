@@ -1,6 +1,8 @@
 package es.upm.sos.biblioteca.cliente.models;
 
 import java.time.LocalDate;
+import java.util.List;
+
 import lombok.*;
 
 @NoArgsConstructor

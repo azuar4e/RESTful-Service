@@ -32,15 +32,15 @@ public class ClienteApplication {
 		//___________________________________________________________________________________________________________________________________________________________________
 	
 		System.out.println("Añadir dos libros");
-		String[] isbn = {"1","2"};
-		String[] titulos = {"Francisco Franco amo y señor de España", "Moro muerto abono para mi huerto"};
-		String[] autores = {"Francisco Franco", "Miguel de Cervantes"};
-		String[] ediciones = {"1", "1"};
-		String[] editoriales = {"1", "1"};
+		String[] isbn = {"1","2","3"};
+		String[] titulos = {"King pantera", "Amongus","Terrence McKenna"};
+		String[] autores = {"King", "Miguel de Cervantes", "Abderraman III"};
+		String ediciones = "1";
+		String editoriales = "1";
 		
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 3; i++) {
 			System.out.println("Añadiendo Libro con isbn: " + isbn[i] + " y titulo: " + titulos[i]);
-			servicio.postLibro(isbn[i], titulos[i], autores[i], ediciones[i], editoriales[i], 2, 2);
+			servicio.postLibro(isbn[i], titulos[i], autores[i], ediciones, editoriales, 2, 2);
 		}
 
 		servicio.getLibro("1");
@@ -51,13 +51,17 @@ public class ClienteApplication {
 
 		List<Prestamo> prestamo1 = new ArrayList<>();
 		Usuario user1 = new Usuario("1","Ana","correo1@correo.com","1990-01-01",null,0, prestamo1, null);
-		Libro libro1 = new Libro("1","Francisco Franco amo y señor de España","Francisco Franco", "1", "1", 2, 2, null);
+		Libro libro1 = new Libro("1", titulos[0], autores[0], "1", "1", 2, 2, null);
+		Libro libro2 = new Libro("2",titulos[1], autores[1], "1", "1", 2, 2, null);
+		Libro libro3 = new Libro("3",titulos[2], autores[2], "1", "1", 2, 2, null);
+
 		LocalDate fechaPrestamo = LocalDate.now();
 		LocalDate fechaDevolucion = LocalDate.now();
 		servicio.postPrestamo(user1, libro1, fechaPrestamo, fechaDevolucion.plusWeeks(1), false, false);
+		servicio.postPrestamo(user1, libro2, fechaPrestamo, fechaDevolucion.plusWeeks(1), false, false);
+		servicio.postPrestamo(user1, libro3, fechaPrestamo, fechaDevolucion.plusWeeks(1), false, false);
 
 		servicio.getPrestamo(1);
-		servicio.getPrestamo(2);
 
 		//___________________________________________________________________________________________________________________________________________________________________
 		//___________________________________________________________________________________________________________________________________________________________________	
@@ -68,7 +72,14 @@ public class ClienteApplication {
 		servicio.putLibro("1","Harry Maguire y el viaje a Osasuna","Harry Maguire", "1", "1", 2, 2);
 		System.out.println("Borramos el usuario 2");
 		servicio.deleteUsuario("2");
-		System.out.println("Borramos los libros");
-		servicio.deleteLibro("2");
+		// System.out.println("Borramos los libros");
+		// servicio.deleteLibro("2");
+
+		System.out.println("Obtener los prestamos de un usuario");
+		servicio.getPrestamosUsuario("1");
+
+		System.out.println("Obtener el prestamo con matricula e isbn");
+		servicio.getPrestamosMatriculaIsbn("1", "1");
+
 	}
 }
