@@ -59,7 +59,7 @@ public class ClienteApplication {
 		LocalDate fechaDevolucion = LocalDate.now();
 		servicio.postPrestamo(user1, libro1, fechaPrestamo, fechaDevolucion.plusWeeks(1), false, false);
 		servicio.postPrestamo(user1, libro2, fechaPrestamo, fechaDevolucion.plusWeeks(1), false, false);
-		servicio.postPrestamo(user1, libro3, fechaPrestamo, fechaDevolucion.plusWeeks(1), false, false);
+		servicio.postPrestamo(user1, libro3, fechaPrestamo.minusMonths(1), fechaDevolucion.minusMonths(1), false, false);
 
 		servicio.getPrestamo(1);
 
@@ -80,6 +80,42 @@ public class ClienteApplication {
 
 		System.out.println("Obtener el prestamo con matricula e isbn");
 		servicio.getPrestamosMatriculaIsbn("1", "1");
+
+		System.out.println("Obtenemos el prestamo por fecha de prestamo");
+		servicio.getPrestamosPorFechaPrestamo("1", LocalDate.now());
+		
+		System.out.println("Obtenemos el prestamo por fecha de devolucion");
+		servicio.getPrestamosPorFechaDevolucion("1", LocalDate.now());
+
+		System.out.println("Obtenemos el prestamo por fecha de devolucion y prestamo");
+		servicio.getPrestamosPorFechaDevolucionPorFechaPrestamos("1", LocalDate.now(), LocalDate.now().plusWeeks(1));
+
+		// System.out.println("Obtenemos los usuarios");
+		// servicio.getUsuarios(0, 3);
+
+		System.out.println("Devolvemos un libro\n\t\\________Verificar la uri: http://localhost:8080/biblioteca.api/prestamos/1");
+		servicio.putPrestamoDevolverLibro(1);
+
+		System.out.println("Verificamos la devolucion de un prestamo caducado\n\t\\________Verificar la uri: http://localhost:8080/biblioteca.api/prestamos/3"+
+		"\n\t\\________Verificar la uri: http://localhost:8080/biblioteca.api/users/1");
+		servicio.putVerificarDevolucion(3);
+
+		System.out.println("En la anterior consulta se deberia poner el numero de libros por devolver"
+		+ " del usuario a 1 y el verificar devolucion del prestamo a true");
+
+		System.out.println("Devolvemos ese libro pendiente"+
+		"\n\t\\________Verificar la uri: http://localhost:8080/biblioteca.api/users/1"+
+		"\n\t\\________Verificar la uri: http://localhost:8080/biblioteca.api/prestamos/3");
+		servicio.putPrestamoDevolverLibro(3);
+
+		System.out.println("En la anterior consulta se deberia poner el numero de libros por devolver"
+		+ " del usuario a 0, la devolucion del prestamo a true y y una sancion de 1 semana al usuario a partir de ahora");
+
+		System.out.println("Actualizamos la fecha de devolucion (1 semana mas) del prestamo con id 2" +
+		"\n\t\\________Verificar la uri: http://localhost:8080/biblioteca.api/prestamos/2");
+		servicio.putActualizarDevolucion(2, fechaDevolucion.plusWeeks(2));
+
+		// solo queda actividad y deletes segun mis cuentas
 
 	}
 }

@@ -142,7 +142,7 @@ public class PrestamosController {
 
 
     @PutMapping("/{id}/actualizar-devolucion")
-    public ResponseEntity<Object> actualizarFechaDevolucion(@PathVariable int id, @RequestParam LocalDate fechaDevolucion, @RequestBody Prestamo prestamo){
+    public ResponseEntity<Object> actualizarFechaDevolucion(@PathVariable int id, @RequestParam LocalDate fechaDevolucion){
         try{
             servicio.actualizarFechaDevolucion(id, fechaDevolucion);
             return ResponseEntity.noContent().build();
@@ -153,7 +153,7 @@ public class PrestamosController {
     }
 
     @PutMapping("/{id}/devolucion")
-    public ResponseEntity<Object> devolverLibro(@PathVariable int id, @RequestBody Prestamo prestamo){
+    public ResponseEntity<Object> devolverLibro(@PathVariable int id){
         try{
             servicio.devolverLibro(id);
             return ResponseEntity.noContent().build();
@@ -164,7 +164,7 @@ public class PrestamosController {
     }
 
     @PutMapping("/{id}/verificar-devolucion")
-    public ResponseEntity<Object> verificarDevolucion(@PathVariable int id, @RequestBody Prestamo prestamo){
+    public ResponseEntity<Object> verificarDevolucion(@PathVariable int id){
         try{
             servicio.verificarDevolucion(id);
             return ResponseEntity.noContent().build();

@@ -1,5 +1,7 @@
 package es.upm.sos.biblioteca.cliente.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.*;
 
 @NoArgsConstructor
@@ -13,5 +15,6 @@ public class Libro {
     private String editorial;
     private int disponibles;
     private int unidades;
+    @JsonProperty("_links")
     private ResourceLink _links;
 }

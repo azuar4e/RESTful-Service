@@ -117,7 +117,7 @@ public class ServicioPrestamos{
       LocalDate fechaActual = LocalDate.now();
       LocalDate fechaDevolucionActual = repository.findById(id).get().getFechaDevolucion();
 
-      if (fechaActual.isBefore(fechaDevolucionActual)) {
+      if (fechaActual.isAfter(fechaDevolucionActual)) {
         throw new FechaDevolucionException(fechaActual, fechaDevolucionActual);
       }
 
@@ -149,15 +149,16 @@ public class ServicioPrestamos{
       Optional<Prestamo> prestamo = repository.findById(id);
       if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
 
-      if (prestamo.get().getFechaDevolucion().isBefore(LocalDate.now())) {
+      if (prestamo.get().getFechaDevolucion().isBefore(LocalDate.now()) && !prestamo.get().isDevuelto()) {
         if (!prestamo.get().isVerificarDevolucion()) { verificarDevolucion(id); }
         Usuario user = userrepo.getUsuario(prestamo.get().getUsuario().getMatricula());
         user.setPorDevolver(user.getPorDevolver() - 1);
 
-        if (user.getPorDevolver() != 0) {
+        if (user.getPorDevolver() == 0) {
           LocalDate sancion = LocalDate.now().plusWeeks(1);
           user.setSancion(sancion);
         }
+        
         userrepo.save(user);
       }
       Libro libro = prestamo.get().getLibro();

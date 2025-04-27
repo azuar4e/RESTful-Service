@@ -2,6 +2,9 @@ package es.upm.sos.biblioteca.cliente.models;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.*;
 
 @NoArgsConstructor
@@ -9,15 +12,11 @@ import lombok.*;
 @Data
 
 public class ResourceLink {
-    private Href singleSelf;
+    @JsonProperty("self")
+    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
     private List<Href> self;
 
     public String getFirstHref() {
-        if (singleSelf != null) {
-            return singleSelf.getHref();
-        } else if (self != null && !self.isEmpty()) {
-            return self.get(0).getHref();
-        }
-        return null;
+        return (self != null && !self.isEmpty()) ? self.get(0).getHref() : null;
     }
 }

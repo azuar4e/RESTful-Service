@@ -2,11 +2,13 @@ package es.upm.sos.biblioteca.cliente.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.MediaType;
 
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.hateoas.PagedModel; 
 
 import org.springframework.http.HttpStatusCode;
 
@@ -14,8 +16,10 @@ import es.upm.sos.biblioteca.cliente.models.Libro;
 import es.upm.sos.biblioteca.cliente.models.Prestamo;
 import es.upm.sos.biblioteca.cliente.models.Usuario;
 import reactor.core.publisher.Mono;
+
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 
 
 
@@ -37,9 +41,35 @@ public class BibliotecaService {
         if(user != null){
             String selfLink = user.get_links().getFirstHref();
             System.out.println("Usuario con matricula: "+user.getMatricula()+ 
-            " y correo: "+user.getCorreo() + " se eencuentra disponible en el link: "+ selfLink);
+            " y correo: "+user.getCorreo() + " se encuentra disponible en el link: "+ selfLink);
         }
     }
+
+    // Obtener todos los usuarios paginados
+    public void getUsuarios(int page, int size) {
+        PagedModel<Usuario> usuarios = webClient.get()
+            .uri(uriBuilder -> uriBuilder.path("/users")
+                .queryParam("page", page)
+                .queryParam("size", size)
+                .build())
+            .retrieve()
+            .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class)
+                .doOnNext(body -> System.err.println("Error 4xx: " + body))
+                .then(Mono.empty()))
+            .onStatus(HttpStatusCode::is5xxServerError, response -> response.bodyToMono(String.class)
+                .doOnNext(body -> System.err.println("Error 5xx: " + body))
+                .then(Mono.empty()))
+            .bodyToMono(new ParameterizedTypeReference<PagedModel<Usuario>>() {})
+            .block();
+
+        if (usuarios != null) {
+            usuarios.getLinks().forEach(link -> {
+                System.out.println("Rel: " + link.getRel() + " -> " + link.getHref());
+            });
+        }
+
+    }
+    
 
     //Get de libro
     public void getLibro(String isbn){
@@ -353,17 +383,17 @@ public class BibliotecaService {
         .collectList()  // Convierte Flux<List> a Mono<List>
         .block();
 
-    if (prestamos != null && !prestamos.isEmpty()) {
-        // Procesa el primer préstamo (o itera sobre todos)
-        Prestamo primerPrestamo = prestamos.get(0);
-        String selfLink = primerPrestamo.get_links().getFirstHref();
-        System.out.println("Prestamo con matrícula: " + matricula +
-            " e isbn: " + isbn +
-            " se encuentra disponible en el link: " + selfLink);
-    } else {
-        System.out.println("No se encontraron préstamos para matrícula " + matricula + " e isbn " + isbn);
+        if (prestamos != null && !prestamos.isEmpty()) {
+            // Procesa el primer préstamo (o itera sobre todos)
+            Prestamo primerPrestamo = prestamos.get(0);
+            String selfLink = primerPrestamo.get_links().getFirstHref();
+            System.out.println("Prestamo con matrícula: " + matricula +
+                " e isbn: " + isbn +
+                " se encuentra disponible en el link: " + selfLink);
+        } else {
+            System.out.println("No se encontraron préstamos para matrícula " + matricula + " e isbn " + isbn);
+        }
     }
-}
 
     public void getPrestamosPorFechaPrestamo(String matricula, LocalDate fechaPrestamo){
         Prestamo prestamo = webClient.get().uri("/prestamos?matricula={matricula}&fechaPrestamo={fechaPrestamo}", matricula, fechaPrestamo).retrieve()
@@ -424,68 +454,58 @@ public class BibliotecaService {
     }
 
 
-    public void putActualizarDevolucion(int id, LocalDate fechaDevolucion, Prestamo prestamo){
-        Prestamo prestamo1 = webClient.get().uri("/prestamos/{id}/actualizar-devolucion",id).retrieve()
-        .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class)
-        .doOnNext(body -> System.err.println("Error 4xx: " + body)).then(Mono.empty())
-        )
-        .onStatus(HttpStatusCode::is5xxServerError,response -> response.bodyToMono(String.class)
-        .doOnNext(body -> System.err.println("Error 5xx"+body)).then(Mono.empty())
-        )
-        .bodyToMono(Prestamo.class)
-        .block();
-
-        if (prestamo != null) {
-            String selfLink = prestamo.get_links().getFirstHref();
-            System.out.println("El prestamo con id: " + prestamo.getId() +
-                " con nueva fechaDevolucion: " + fechaDevolucion +
-                " se encuentra disponible en el link: " + selfLink);
-        }
+    public void putActualizarDevolucion(int id, LocalDate fechaDevolucion){
+        webClient.put().uri("/prestamos/{id}/actualizar-devolucion?fechaDevolucion={fechaDevolucion}",id, fechaDevolucion)
+            .retrieve()
+            .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class)
+                .doOnNext(body -> System.err.println("Error 4xx: " + body))
+                .then(Mono.empty()))
+            .onStatus(HttpStatusCode::is5xxServerError, response -> response.bodyToMono(String.class)
+                .doOnNext(body -> System.err.println("Error 5xx: " + body))
+                .then(Mono.empty()))
+            .toBodilessEntity()
+            .block();
     }
 
-    public void putPrestamoDevolverLibro(int id, Usuario user, Libro libro, LocalDate fechaPrestamo,
-    LocalDate fechaDevolucion, boolean devuelto, boolean verificarDevolucion){
-        Prestamo prestamo = new Prestamo();
-        prestamo.setUsuario(user);
-        prestamo.setLibro(libro);
-        prestamo.setFechaPrestamo(fechaPrestamo);
-        prestamo.setFechaDevolucion(fechaDevolucion);
-        prestamo.setDevuelto(devuelto);
-        prestamo.setVerificarDevolucion(verificarDevolucion);
+    public void putPrestamoDevolverLibro(int id) {
         webClient.put()
-        .uri("/prestamos/{id}", id)
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(Mono.just(user),Usuario.class)
+            .uri("/prestamos/{id}/devolucion", id)
+            .retrieve()
+            .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class)
+                .doOnNext(body -> System.err.println("Error 4xx: " + body))
+                .then(Mono.empty()))
+            .onStatus(HttpStatusCode::is5xxServerError, response -> response.bodyToMono(String.class)
+                .doOnNext(body -> System.err.println("Error 5xx: " + body))
+                .then(Mono.empty()))
+            .toBodilessEntity()
+            .block();
+    }
+    
+    public void putVerificarDevolucion(int id) {
+        webClient.put()
+            .uri("/prestamos/{id}/verificar-devolucion", id)
+            .retrieve()
+            .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class)
+                .doOnNext(body -> System.err.println("Error 4xx: " + body))
+                .then(Mono.empty()))
+            .onStatus(HttpStatusCode::is5xxServerError, response -> response.bodyToMono(String.class)
+                .doOnNext(body -> System.err.println("Error 5xx: " + body))
+                .then(Mono.empty()))
+            .toBodilessEntity()
+            .block();
+    }
+
+    public EntityModel<ActividadUsuario> getUsuarioActividad(String matricula) {
+    return webClient.get()
+        .uri("/users/{matricula}/actividad", matricula)
         .retrieve()
         .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class)
-        .doOnNext(body -> System.err.println("Error 4xx: " + body)).then(Mono.empty())
-        )
-        .onStatus(HttpStatusCode::is5xxServerError,response -> response.bodyToMono(String.class)
-        .doOnNext(body -> System.err.println("Error 5xx"+body)).then(Mono.empty())
-        ).toBodilessEntity()
+            .doOnNext(body -> System.err.println("Error 4xx: " + body))
+            .then(Mono.empty()))
+        .onStatus(HttpStatusCode::is5xxServerError, response -> response.bodyToMono(String.class)
+            .doOnNext(body -> System.err.println("Error 5xx: " + body))
+            .then(Mono.empty()))
+        .bodyToMono(new ParameterizedTypeReference<EntityModel<ActividadUsuario>>() {})
         .block();
-    } 
-
-    // public void getActividadUsuario(String matricula) {
-    //     EntityModel<ActividadUsuario> actividad = webClient.get()
-    //         .uri("/usuarios/{matricula}/actividad", matricula)
-    //         .retrieve()
-    //         .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class)
-    //         .doOnNext(body -> System.err.println("Error 4xx: " + body)).then(Mono.empty())
-    //         )
-    //         .onStatus(HttpStatusCode::is5xxServerError,response -> response.bodyToMono(String.class)
-    //         .doOnNext(body -> System.err.println("Error 5xx"+body)).then(Mono.empty())
-    //         )
-    //         .bodyToMono(Prestamo.class)
-    //         .block();
-            
-    //     if (new ParameterizedTypeReference<EntityModel<ActividadUsuario>>() {}) {
-    //         ActividadUsuario usuario = actividad.getContent();
-    //         System.out.println("Actividad del usuario " + usuario.getMatricula() + ":");
-    //         System.out.println("Nombre: " + usuario.getNombre());
-    //         System.out.println("Correo: " + usuario.getCorreo());
-    //         System.out.println("Prestamos actuales: " + usuario.getPrestamosActuales());
-    //         System.out.println("Historial: " + usuario.getHistorialPrestamos());
-    //     }
-    // }
+}
 }
