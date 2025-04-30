@@ -28,6 +28,8 @@ import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.validation.annotation.Validated;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/biblioteca.api/users")
@@ -98,42 +100,22 @@ public class UsuariosController {
 
 
     @PostMapping
-    public ResponseEntity<Object> añadirUsuario(@RequestBody Usuario usuario){
-        
-    try{
-            Usuario nuevo = servicioUsuarios.postUsuario(usuario);
-            return ResponseEntity.created(linkTo(methodOn(UsuariosController.class).
-                                        getUsuario(nuevo.getMatricula())).toUri()).build();
-        }
-    catch(UsuarioConflictException e){
+    public ResponseEntity<Object> añadirUsuario(@RequestBody Usuario usuario){ 
+        try{
+                Usuario nuevo = servicioUsuarios.postUsuario(usuario);
+                return ResponseEntity.created(linkTo(methodOn(UsuariosController.class).
+                                            getUsuario(nuevo.getMatricula())).toUri()).build();
+            }
+        catch(UsuarioConflictException e){
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(e);
+            }
+        catch(CorreoRegistradoException e){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e);
         }
-    catch(CorreoRegistradoException e){
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(e);
     }
-    }
-
-    // cambiar por un getmapping
-    @PostMapping("/{matricula}/prestamos")//probar este metodo y ver la uri que devuelve
-    public ResponseEntity<Object> nuevoPrestamo(@PathVariable String matricula, @RequestBody Prestamo prestamo){
-        try{
-            Prestamo nuevo = servicioUsuarios.postPrestamoUsuario(matricula,prestamo);
-            return ResponseEntity.created(linkTo(methodOn(UsuariosController.class).
-                                        getUsuario(matricula)).linkTo(prestamo.getId()).toUri()).build();
-        }
-        catch(UsuarioNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); 
-        }
-        catch(PrestamoConflictException e){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage()); 
-        }
-    }
-
-//FALTA DELETE MAPING DE PRESTAMO DEL USUARIO
-    
 
     @PutMapping("/{matricula}")
-    public ResponseEntity<Object> modificarUsuario(@PathVariable String matricula, @RequestBody Usuario usuario){
+    public ResponseEntity<Object> modificarUsuario(@PathVariable String matricula, @Valid @RequestBody Usuario usuario){
         try{
             servicioUsuarios.actualizarUsuario(matricula, usuario);
             return ResponseEntity.noContent().build();
@@ -150,7 +132,7 @@ public class UsuariosController {
         try{
             servicioUsuarios.deleteUsuario(matricula);
             return ResponseEntity.noContent().build();
-            }   
+        }   
         catch (UsuarioNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); 
         }

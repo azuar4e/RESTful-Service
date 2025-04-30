@@ -32,19 +32,23 @@ public class ClienteApplication {
 		//___________________________________________________________________________________________________________________________________________________________________
 	
 		System.out.println("Añadir dos libros");
-		String[] isbn = {"1","2","3"};
-		String[] titulos = {"King pantera", "Amongus","Terrence McKenna"};
-		String[] autores = {"King", "Miguel de Cervantes", "Abderraman III"};
+		String[] isbn = {"1","2","3", "4"};
+		String[] titulos = {"King pantera", "Amongus","Terrence McKenna", "pedro sanchez ~ final electrica"};
+		String[] autores = {"King", "Miguel de Cervantes", "Abderraman III", "Kevin Roldan"};
 		String ediciones = "1";
 		String editoriales = "1";
 		
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < 4; i++) {
 			System.out.println("Añadiendo Libro con isbn: " + isbn[i] + " y titulo: " + titulos[i]);
 			servicio.postLibro(isbn[i], titulos[i], autores[i], ediciones, editoriales, 2, 2);
 		}
 
 		servicio.getLibro("1");
 		servicio.getLibro("2");
+
+		servicio.getPorTitulo("pedro");
+		Integer unidades = servicio.getLibroUnidades("1");
+		System.out.println("Unidades del libro con isbn 1: " + unidades);
 
 		//___________________________________________________________________________________________________________________________________________________________________
 		//___________________________________________________________________________________________________________________________________________________________________
@@ -72,10 +76,17 @@ public class ClienteApplication {
 		servicio.putLibro("1","Harry Maguire y el viaje a Osasuna","Harry Maguire", "1", "1", 2, 2);
 		System.out.println("Borramos el usuario 2");
 		servicio.deleteUsuario("2");
-		// System.out.println("Borramos los libros");
-		// servicio.deleteLibro("2");
 
-		System.out.println("Obtener los prestamos de un usuario");
+		System.out.println("Obtenemos los usuarios");
+		servicio.getUsuarios(0, 3);
+
+		System.out.println("Obtenemos los Libros");
+		servicio.getLibros(0, 3);
+
+		System.out.println("Obtenemos los prestamos");
+		servicio.getPrestamos(0, 3);
+
+		System.out.println("Obtenemos los prestamos de un usuario");
 		servicio.getPrestamosUsuario("1");
 
 		System.out.println("Obtener el prestamo con matricula e isbn");
@@ -85,28 +96,25 @@ public class ClienteApplication {
 		servicio.getPrestamosPorFechaPrestamo("1", LocalDate.now());
 		
 		System.out.println("Obtenemos el prestamo por fecha de devolucion");
-		servicio.getPrestamosPorFechaDevolucion("1", LocalDate.now());
+		servicio.getPrestamosPorFechaDevolucion("1", LocalDate.now().plusWeeks(1));
 
 		System.out.println("Obtenemos el prestamo por fecha de devolucion y prestamo");
 		servicio.getPrestamosPorFechaDevolucionPorFechaPrestamos("1", LocalDate.now(), LocalDate.now().plusWeeks(1));
 
-		// System.out.println("Obtenemos los usuarios");
-		// servicio.getUsuarios(0, 3);
-
 		System.out.println("Devolvemos un libro\n\t\\________Verificar la uri: http://localhost:8080/biblioteca.api/prestamos/1");
 		servicio.putPrestamoDevolverLibro(1);
 
-		System.out.println("Verificamos la devolucion de un prestamo caducado\n\t\\________Verificar la uri: http://localhost:8080/biblioteca.api/prestamos/3"+
-		"\n\t\\________Verificar la uri: http://localhost:8080/biblioteca.api/users/1");
-		servicio.putVerificarDevolucion(3);
+		// System.out.println("Verificamos la devolucion de un prestamo caducado\n\t\\________Verificar la uri: http://localhost:8080/biblioteca.api/prestamos/3"+
+		// "\n\t\\________Verificar la uri: http://localhost:8080/biblioteca.api/users/1");
+		// servicio.putVerificarDevolucion(3);
 
-		System.out.println("En la anterior consulta se deberia poner el numero de libros por devolver"
-		+ " del usuario a 1 y el verificar devolucion del prestamo a true");
+		// System.out.println("En la anterior consulta se deberia poner el numero de libros por devolver"
+		// + " del usuario a 1 y el verificar devolucion del prestamo a true");
 
-		System.out.println("Devolvemos ese libro pendiente"+
-		"\n\t\\________Verificar la uri: http://localhost:8080/biblioteca.api/users/1"+
-		"\n\t\\________Verificar la uri: http://localhost:8080/biblioteca.api/prestamos/3");
-		servicio.putPrestamoDevolverLibro(3);
+		// System.out.println("Devolvemos ese libro pendiente"+
+		// "\n\t\\________Verificar la uri: http://localhost:8080/biblioteca.api/users/1"+
+		// "\n\t\\________Verificar la uri: http://localhost:8080/biblioteca.api/prestamos/3");
+		// servicio.putPrestamoDevolverLibro(3);
 
 		System.out.println("En la anterior consulta se deberia poner el numero de libros por devolver"
 		+ " del usuario a 0, la devolucion del prestamo a true y y una sancion de 1 semana al usuario a partir de ahora");
@@ -116,6 +124,26 @@ public class ClienteApplication {
 		servicio.putActualizarDevolucion(2, fechaDevolucion.plusWeeks(2));
 
 		// solo queda actividad y deletes segun mis cuentas
+		System.out.println("Obtenemos los ultimos libros devueltos por un usuario");
+		servicio.getUltimosLibrosDevueltos("1");
 
+		System.out.println("Obtenemos los prestamos de un usuario");
+		servicio.getPrestamosUsuario("1");
+
+		System.out.println("Obtenemos la actividad de un usuario");
+		servicio.getActividadUsuarioLink("1");
+
+		// System.out.println("Borramos los libros");
+		// servicio.deleteLibro("1");
+		// servicio.deleteLibro("2");
+		// servicio.deleteLibro("4");
+
+		// System.out.println("Borramos los prestamos");
+		// servicio.deletePrestamo(1);
+		// servicio.deletePrestamo(2);
+		// servicio.deletePrestamo(3);
+
+		// System.out.println("Borramos el usuario");
+		// servicio.deleteUsuario("1");
 	}
 }

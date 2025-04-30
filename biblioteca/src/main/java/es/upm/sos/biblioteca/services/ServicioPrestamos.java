@@ -26,7 +26,8 @@ import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoConflictException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.LibroNoDisponibleException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.UsuarioDevolucionesPendientesException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.UsuarioSancionadoException;
-
+import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoDevueltoException;
+import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioNotFoundException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,7 @@ public class ServicioPrestamos{
     }
 
     public Prestamo getPrestamoMatriculaIsbn(String matricula, String isbn){
-      Prestamo prestamo = repository.findByUsuarioMatriculaAndLibroIsbn(matricula, isbn);
+    Prestamo prestamo = repository.findByUsuarioMatriculaAndLibroIsbn(matricula, isbn);
 
       if (prestamo == null) { throw new PrestamoNotFoundException(null, matricula, isbn); }
 
@@ -95,6 +96,9 @@ public class ServicioPrestamos{
     }
 
     public Page<Prestamo> getUltimosLibrosDevueltos(String matricula, int page, int size) {
+      Usuario usuario = userRepo.findByMatricula(matricula);
+      if (usuario == null) { throw new UsuarioNotFoundException(matricula); }
+      
       Pageable paginable = PageRequest.of(page, size);
       Page<Prestamo> prestamos = repository.getUltimosLibrosDevueltos(matricula, paginable);
       if (prestamos == null) { throw new PrestamoNotFoundContentException(matricula, null, null); }
@@ -148,6 +152,7 @@ public class ServicioPrestamos{
 
       Optional<Prestamo> prestamo = repository.findById(id);
       if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
+      if (prestamo.get().isDevuelto()) { throw new PrestamoDevueltoException(id); }
 
       if (prestamo.get().getFechaDevolucion().isBefore(LocalDate.now()) && !prestamo.get().isDevuelto()) {
         if (!prestamo.get().isVerificarDevolucion()) { verificarDevolucion(id); }

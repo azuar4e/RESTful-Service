@@ -18,7 +18,7 @@ public class PrestamosExcepciones {
     }
 
     @ExceptionHandler(FechaDevolucionException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.CONFLICT)
     ErrorMessage FechaDevolucionException(FechaDevolucionException ex) {
         return new ErrorMessage(ex.getMessage());
     }
@@ -30,32 +30,38 @@ public class PrestamosExcepciones {
     }
 
     @ExceptionHandler(PrestamoConflictException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.CONFLICT)
     ErrorMessage PrestamoConflictException(PrestamoConflictException ex) {
         return new ErrorMessage(ex.getMessage());
     }
 
     @ExceptionHandler(PrestamoVerificadoException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     ErrorMessage PrestamoVerificadoException(PrestamoVerificadoException ex) {
         return new ErrorMessage(ex.getMessage());
     }
 
     @ExceptionHandler(LibroNoDisponibleException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     ErrorMessage LibroNoDisponibleException(LibroNoDisponibleException ex) {
         return new ErrorMessage(ex.getMessage());
     }
 
     @ExceptionHandler(UsuarioDevolucionesPendientesException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     ErrorMessage UsuarioDevolucionesPendientesException(UsuarioDevolucionesPendientesException ex) {
         return new ErrorMessage(ex.getMessage());
     }
 
     @ExceptionHandler(UsuarioSancionadoException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     ErrorMessage UsuarioSancionadoException(UsuarioSancionadoException ex) {
+        return new ErrorMessage(ex.getMessage());
+    }
+
+    @ExceptionHandler(PrestamoDevueltoException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    ErrorMessage PrestamoDevueltoException(PrestamoDevueltoException ex) {
         return new ErrorMessage(ex.getMessage());
     }
 }

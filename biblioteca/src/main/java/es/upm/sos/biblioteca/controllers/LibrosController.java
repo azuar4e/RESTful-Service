@@ -47,10 +47,14 @@ public class LibrosController {
                     @RequestParam(defaultValue = "0", required = false) int page,
                     @RequestParam(defaultValue = "3", required = false) int size) {
         //devuelve los libros que contengan en su titulo el parametro dicho
-        Page<Libro> libros = servicio.getLibrosContenido(tituloContiene,page,size);
-
-        return new ResponseEntity<>(pagedResourcesAssembler.toModel(libros, libroModelAssembler),HttpStatus.OK);
-
+        
+        try{
+            Page<Libro> libros = servicio.getLibrosContenido(tituloContiene,page,size);
+            return new ResponseEntity<>(pagedResourcesAssembler.toModel(libros, libroModelAssembler),HttpStatus.OK);
+        }
+         catch(LibroNotFoundContentException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+       }
     }
 
     @GetMapping(params = "disponible")
@@ -123,7 +127,7 @@ public class LibrosController {
         return ResponseEntity.noContent().build();
         }
         catch (LibroNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); 
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
@@ -137,9 +141,12 @@ public class LibrosController {
 
 
     @GetMapping("/{isbn}/unidades")
-        public ResponseEntity<Integer> getUnidades(@RequestParam String isbn) {
+    public ResponseEntity<Object> getUnidades(@PathVariable String isbn) {
+        try {
             int unidades = servicio.getUnidadesLibro(isbn);
             return ResponseEntity.ok(unidades);
+        } catch (LibroNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-        
+    }
 }

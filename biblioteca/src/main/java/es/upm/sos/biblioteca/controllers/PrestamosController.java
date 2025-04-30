@@ -8,9 +8,12 @@ import es.upm.sos.biblioteca.Excepciones.Prestamos.FechaDevolucionException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.FechasNoValidasException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.LibroNoDisponibleException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoConflictException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoDevueltoException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundContentException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoVerificadoException;
+import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioNotFoundException;
+
 import es.upm.sos.biblioteca.models.Prestamo;
 import es.upm.sos.biblioteca.models.PrestamoModelAssembler;
 import es.upm.sos.biblioteca.services.ServicioPrestamos;
@@ -73,6 +76,8 @@ public class PrestamosController {
             Page<Prestamo> prestamo = servicio.getUltimosLibrosDevueltos(matricula, page, size);
             return ResponseEntity.ok(pagedResourcesAssembler.toModel(prestamo, prestamoModelAssembler));
         } catch (PrestamoNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (UsuarioNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
@@ -149,6 +154,8 @@ public class PrestamosController {
         }
         catch(FechaDevolucionException e){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e);
+        } catch (PrestamoNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
         }
     }
 
@@ -158,8 +165,10 @@ public class PrestamosController {
             servicio.devolverLibro(id);
             return ResponseEntity.noContent().build();
         }
-        catch(FechaDevolucionException e){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e);
+        catch (PrestamoNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
+        } catch (PrestamoDevueltoException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e);
         }
     }
 
@@ -171,6 +180,8 @@ public class PrestamosController {
         }
         catch(PrestamoVerificadoException e){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e);
+        } catch (PrestamoNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
         }
     }
 
@@ -199,6 +210,8 @@ public class PrestamosController {
         }
         catch (FechasNoValidasException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());  
+        } catch (LibroNoDisponibleException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());  
         }
     }
 }

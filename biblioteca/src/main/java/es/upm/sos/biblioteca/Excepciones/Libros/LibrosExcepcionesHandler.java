@@ -25,4 +25,9 @@ ErrorMessage LibroConflictException(LibroConflictException ex) {
     return new ErrorMessage(ex.getMessage());
 }
 
+@ExceptionHandler(LibroNotFoundContentException.class)
+@ResponseStatus(HttpStatus.NOT_FOUND)
+ErrorMessage LibroNotFoundContentException(LibroNotFoundContentException ex){
+    return new ErrorMessage(ex.getMessage());
+}
 }
