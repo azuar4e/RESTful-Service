@@ -2,6 +2,7 @@ package es.upm.sos.biblioteca.services;
 
 
 import java.util.Optional;
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoConflictException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundContentException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.CorreoRegistradoException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioConflictException;
@@ -48,11 +50,41 @@ public class ServicioUsuarios{
         return user;
     }
 
+    public Page<Prestamo> getPrestamosMatricula(String matricula, int page, int size){
+        Pageable paginable = PageRequest.of(page, size);
+        Page<Prestamo> prestamos = repository.findByPrestamosUsuarioMatricula(matricula, paginable);
+
+        if (prestamos.isEmpty()) { throw new PrestamoNotFoundException(null, matricula, null); }
+
+        return prestamos;
+    }
+
+    public Page<Prestamo> getPrestamosPorFechaPrestamo(String matricula, LocalDate fecha_prestamo, int page, int size) {
+      Pageable paginable = PageRequest.of(page, size);
+      Page<Prestamo> prestamos = repository.findByPrestamosUsuarioMatriculaAndFechaPrestamo(matricula, fecha_prestamo, paginable);
+      if (prestamos.isEmpty()) { throw new PrestamoNotFoundContentException(matricula, fecha_prestamo, null); }
+      return prestamos;
+    }
+
+    public Page<Prestamo> getPrestamosPorFechaDevolucion(String matricula, LocalDate fecha_devolucion, int page, int size) {
+      Pageable paginable = PageRequest.of(page, size);
+      Page<Prestamo> prestamos = repository.findByPrestamosUsuarioMatriculaAndFechaDevolucion(matricula, fecha_devolucion, paginable);
+      if (prestamos.isEmpty()) { throw new PrestamoNotFoundContentException(matricula, null, fecha_devolucion); }
+      return prestamos;
+    }
+
+    public Page<Prestamo> getPrestamosPorDobleFiltrado(String matricula, LocalDate fecha_prestamo, LocalDate fecha_devolucion, int page, int size) {
+      Pageable paginable = PageRequest.of(page, size);
+      Page<Prestamo> prestamos = repository.findByPrestamosUsuarioMatriculaAndFechaPrestamoAndFechaDevolucion(matricula, fecha_prestamo, fecha_devolucion, paginable);
+      if (prestamos.isEmpty()) { throw new PrestamoNotFoundContentException(matricula, fecha_prestamo, fecha_devolucion); }
+      return prestamos;
+    }
+
     
     //Metodo para obtener todos los usuarios | optional se usa para valores posibles null
     public Page<Usuario> getUsuarios(int page, int size){
         Pageable paginable = PageRequest.of(page,size);
-        return repository.getUsuarios(paginable);
+        return repository.findAll(paginable);
     }
 
     //put

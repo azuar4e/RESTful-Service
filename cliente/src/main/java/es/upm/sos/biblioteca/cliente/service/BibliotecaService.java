@@ -375,8 +375,12 @@ public class BibliotecaService {
     //______________________________________________________________________________________________________________
     // metodos auxiliares
 
-    public void getPrestamosUsuario(String matricula){
-        Prestamo prestamo = webClient.get().uri("/prestamos?matricula={matricula}", matricula).retrieve()
+    public void getPrestamosUsuario(String matricula, LocalDate fechaPrestamo, LocalDate fechaDevolucion, int page, int size){
+        Prestamo prestamos = webClient.get().uri(uriBuilder -> uriBuilder.path("/usuarios/{matricula}/prestamos", matricula)
+        .queryParam("page",page)
+        .queryParam("size",size)
+        .build())
+        .retrieve()
         .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class)
         .doOnNext(body -> System.err.println("Error 4xx: " + body)).then(Mono.empty())
         )
@@ -386,10 +390,11 @@ public class BibliotecaService {
         .bodyToMono(Prestamo.class)
         .block();
 
-        if (prestamo != null) {
-            String selfLink = prestamo.get_links().getFirstHref();
-            System.out.println("Los prestamos del usuario con matricula: " + matricula +
-                " se encuentra disponible en el link: " + selfLink);
+        if (fechaPrestamo != null) {
+            builder.queryParam("fecha_prestamo", fechaPrestamo.toString());
+        }
+        if(fechaDevolucion != null){
+            builder.queryParam("fecha_devolucion", fechaDevolucion.toString());
         }
     }
 

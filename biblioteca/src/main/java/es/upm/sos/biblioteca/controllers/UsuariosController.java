@@ -16,12 +16,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import es.upm.sos.biblioteca.models.Prestamo;
-import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoConflictException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundContentException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.CorreoRegistradoException;
-import es.upm.sos.biblioteca.Excepciones.Usuarios.PrestamoYaEnListaException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioConflictException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioNotFoundException;
 import es.upm.sos.biblioteca.models.UsuarioModelAssembler;
+import es.upm.sos.biblioteca.models.PrestamoModelAssembler;
 import es.upm.sos.biblioteca.models.Usuario;
 import lombok.*;
 
@@ -53,7 +53,9 @@ public class UsuariosController {
     private ServicioUsuarios servicioUsuarios;
     private ServicioPrestamos servicioPrestamos;
     private PagedResourcesAssembler<Usuario> pagedResourcesAssembler;
+    private PagedResourcesAssembler<Prestamo> prestamoResourcesAssembler;
     private UsuarioModelAssembler usuarioModelAssembler;
+    private PrestamoModelAssembler prestamoModelAssembler;
 
     @GetMapping
     public ResponseEntity<Object> getUsuarios( 
@@ -75,6 +77,8 @@ public class UsuariosController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
         }
     }
+
+    
 
     @GetMapping("/{matricula}/actividad")
     public ResponseEntity<Object> getUsuarioActividad(@PathVariable String matricula){
@@ -100,11 +104,12 @@ public class UsuariosController {
 
 
     @PostMapping
-    public ResponseEntity<Object> añadirUsuario(@RequestBody Usuario usuario){ 
+    public ResponseEntity<?> añadirUsuario(@RequestBody Usuario usuario){ 
         try{
                 Usuario nuevo = servicioUsuarios.postUsuario(usuario);
-                return ResponseEntity.created(linkTo(methodOn(UsuariosController.class).
-                                            getUsuario(nuevo.getMatricula())).toUri()).build();
+                return ResponseEntity.created(linkTo(methodOn(UsuariosController.class)
+                            .getUsuario(nuevo.getMatricula())).toUri())
+                            .body(nuevo);
             }
         catch(UsuarioConflictException e){
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(e);
@@ -136,6 +141,62 @@ public class UsuariosController {
         catch (UsuarioNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); 
         }
+    }
+
+
+
+/* GETS PRESTAMOS MATRICULA A MODIFICAR*/
+
+
+
+
+
+
+        @GetMapping("/{matricula}/prestamos")
+        public ResponseEntity<Object> getPrestamosPorFecha(
+            @PathVariable String matricula,
+            @RequestParam(required = false) LocalDate fecha_prestamo,
+            @RequestParam(required = false) LocalDate fecha_devolucion,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "3") int size) {
+
+            try {
+                //sin ningun tipo de filtrado
+                if (fecha_prestamo == null && fecha_devolucion == null) {
+                    Page prestamos = servicioUsuarios.getPrestamosMatricula(matricula, page, size);
+                    if (prestamos == null) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontraron préstamos del user " + matricula);
+                    }
+                    return new ResponseEntity<>(prestamoResourcesAssembler.toModel(prestamos, prestamoModelAssembler),HttpStatus.OK);
+                
+                } else {
+                
+                //filtrado de ambas fechas
+                if (fecha_prestamo != null && fecha_devolucion != null) {
+                     Page prestamos = servicioUsuarios.getPrestamosPorDobleFiltrado(matricula,fecha_prestamo,fecha_devolucion,page,size);
+                    return new ResponseEntity<>(prestamoResourcesAssembler.toModel(prestamos, prestamoModelAssembler),HttpStatus.OK);
+
+                
+                //filtrado solo inicio prestamo
+                } else if (fecha_prestamo != null && fecha_devolucion==null) {
+                    Page prestamos = servicioUsuarios.getPrestamosPorFechaPrestamo(matricula, fecha_prestamo, page, size);
+                    return new ResponseEntity<>(prestamoResourcesAssembler.toModel(prestamos, prestamoModelAssembler),HttpStatus.OK);
+                
+                //filtrado solo fecha devolucion
+                } else if(fecha_prestamo == null && fecha_devolucion!=null){
+                    Page prestamos = servicioUsuarios.getPrestamosPorFechaDevolucion(matricula, fecha_devolucion, page, size);
+                    return new ResponseEntity<>(prestamoResourcesAssembler.toModel(prestamos, prestamoModelAssembler),HttpStatus.OK);
+                 
+                }
+                else{
+                    return ResponseEntity.badRequest().body("Parámetros inválidos.");
+                }
+            }
+            
+        } catch (UsuarioNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+
     }
     
 }

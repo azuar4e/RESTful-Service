@@ -41,7 +41,7 @@ public class LibrosController {
     
     
 
-    @GetMapping(params = "tituloContiene")
+    @GetMapping(params = "titulo_contiene")
     public ResponseEntity<Object>  getLibrosContenido(
                     @RequestParam String tituloContiene, 
                     @RequestParam(defaultValue = "0", required = false) int page,

@@ -30,10 +30,10 @@ public class Prestamo extends RepresentationModel<Prestamo> {
     private Libro libro;
 
     @Column(name = "fecha_prestamo", nullable = false)
-    private LocalDate fechaPrestamo;
+    private LocalDate fecha_prestamo;
 
     @Column(name = "fecha_devolucion", nullable = false)
-    private LocalDate fechaDevolucion;
+    private LocalDate fecha_devolucion;
 
     @Column(columnDefinition = "boolean default false")
     private boolean devuelto;

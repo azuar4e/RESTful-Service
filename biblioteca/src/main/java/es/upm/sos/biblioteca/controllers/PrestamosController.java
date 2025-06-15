@@ -55,18 +55,6 @@ public class PrestamosController {
     
 
     //obtiene el prestamo a partir de la matricula y el isbn
-    @GetMapping(params = {"matricula", "isbn"})
-    public ResponseEntity<Object> getPrestamosMatriculaIsbn (@RequestParam String matricula,
-        @RequestParam String isbn) {
-
-        try {
-            Prestamo prestamo = servicio.getPrestamoMatriculaIsbn(matricula, isbn);
-            prestamo.add(linkTo(methodOn(PrestamosController.class).getPrestamosMatriculaIsbn(prestamo.getUsuario().getMatricula(), prestamo.getLibro().getIsbn())).withSelfRel());
-            return ResponseEntity.ok(prestamoModelAssembler.toModel(prestamo));
-        } catch (PrestamoNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
 
     @GetMapping("/{matricula}/ultimos-libros-devueltos")
     public ResponseEntity<Object> getUltimosLibrosDevueltos(@PathVariable String matricula,
@@ -92,64 +80,14 @@ public class PrestamosController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
-
-    @GetMapping(params = "matricula")
-    public ResponseEntity<Object> getPrestamosMatricula(@RequestParam String matricula,
-        @RequestParam(defaultValue = "0", required = false) int page,
-        @RequestParam(defaultValue = "3", required = false) int size) {
-        try {
-            Page<Prestamo> prestamos = servicio.getPrestamosMatricula(matricula, page, size);
-            return ResponseEntity.ok(pagedResourcesAssembler.toModel(prestamos, prestamoModelAssembler));
-        } catch (PrestamoNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
-
-    @GetMapping(params = {"matricula", "fechaPrestamo"})
-    public ResponseEntity<Object> getPrestamosPorFechaPrestamo(@RequestParam String matricula,
-        @RequestParam LocalDate fechaPrestamo,
-        @RequestParam(defaultValue = "0", required = false) int page,
-        @RequestParam(defaultValue = "3", required = false) int size) {
-        try {
-            Page<Prestamo> prestamos = servicio.getPrestamosPorFechaPrestamo(matricula, fechaPrestamo, page, size);
-            return ResponseEntity.ok(pagedResourcesAssembler.toModel(prestamos, prestamoModelAssembler));
-        } catch (PrestamoNotFoundContentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
-
-    @GetMapping(params = {"matricula", "fechaDevolucion"})
-    public ResponseEntity<Object> getPrestamosPorFechaDevolucion(@RequestParam String matricula,
-        @RequestParam LocalDate fechaDevolucion,
-        @RequestParam(defaultValue = "0", required = false) int page,
-        @RequestParam(defaultValue = "3", required = false) int size) {
-        try {
-            Page<Prestamo> prestamos = servicio.getPrestamosPorFechaDevolucion(matricula, fechaDevolucion, page, size);
-            return ResponseEntity.ok(pagedResourcesAssembler.toModel(prestamos, prestamoModelAssembler));
-        } catch (PrestamoNotFoundContentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
-
-    @GetMapping(params = {"matricula", "fechaPrestamo", "fechaDevolucion"})
-    public ResponseEntity<Object> getPrestamosPorFechaDevolucionPorFechaPrestamos(@RequestParam String matricula,
-        @RequestParam LocalDate fechaPrestamo,
-        @RequestParam LocalDate fechaDevolucion,
-        @RequestParam(defaultValue = "0", required = false) int page,
-        @RequestParam(defaultValue = "3", required = false) int size) {
-        try {
-            Page<Prestamo> prestamos = servicio.getPrestamosPorFechaDevolucionPorFechaPrestamos(matricula, fechaPrestamo, fechaDevolucion, page, size);
-            return ResponseEntity.ok(pagedResourcesAssembler.toModel(prestamos, prestamoModelAssembler));
-        } catch (PrestamoNotFoundContentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
-
-
+    
+/************************************************************************
+************************************************************************
+*************************************************************************/
     @PutMapping("/{id}/actualizar-devolucion")
-    public ResponseEntity<Object> actualizarFechaDevolucion(@PathVariable int id, @RequestParam LocalDate fechaDevolucion){
+    public ResponseEntity<Object> actualizarFechaDevolucion(@PathVariable int id, @RequestParam LocalDate fecha_devolucion){
         try{
-            servicio.actualizarFechaDevolucion(id, fechaDevolucion);
+            servicio.actualizarFechaDevolucion(id, fecha_devolucion);
             return ResponseEntity.noContent().build();
         }
         catch(FechaDevolucionException e){
@@ -159,6 +97,9 @@ public class PrestamosController {
         }
     }
 
+/************************************************************************
+************************************************************************
+*************************************************************************/
     @PutMapping("/{id}/devolucion")
     public ResponseEntity<Object> devolverLibro(@PathVariable int id){
         try{
