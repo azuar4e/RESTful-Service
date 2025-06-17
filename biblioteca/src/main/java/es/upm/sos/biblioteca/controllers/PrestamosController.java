@@ -52,24 +52,6 @@ public class PrestamosController {
         Page<Prestamo> prestamos = servicio.getPrestamos(page, size);
         return ResponseEntity.ok(pagedResourcesAssembler.toModel(prestamos, prestamoModelAssembler));
     }
-    
-
-    //obtiene el prestamo a partir de la matricula y el isbn
-
-    @GetMapping("/{matricula}/ultimos-libros-devueltos")
-    public ResponseEntity<Object> getUltimosLibrosDevueltos(@PathVariable String matricula,
-    @RequestParam(defaultValue = "0", required = false) int page,
-    @RequestParam(defaultValue = "5", required = false) int size) {
-        try {
-            Page<Prestamo> prestamo = servicio.getUltimosLibrosDevueltos(matricula, page, size);
-            return ResponseEntity.ok(pagedResourcesAssembler.toModel(prestamo, prestamoModelAssembler));
-        } catch (PrestamoNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (UsuarioNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getPrestamo(@PathVariable int id) {
@@ -84,18 +66,18 @@ public class PrestamosController {
 /************************************************************************
 ************************************************************************
 *************************************************************************/
-    @PutMapping("/{id}/actualizar-devolucion")
-    public ResponseEntity<Object> actualizarFechaDevolucion(@PathVariable int id, @RequestParam LocalDate fecha_devolucion){
-        try{
-            servicio.actualizarFechaDevolucion(id, fecha_devolucion);
-            return ResponseEntity.noContent().build();
-        }
-        catch(FechaDevolucionException e){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e);
-        } catch (PrestamoNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
-        }
-    }
+    // @PutMapping("/{id}/actualizar-devolucion")
+    // public ResponseEntity<Object> actualizarFechaDevolucion(@PathVariable int id, @RequestParam LocalDate fecha_devolucion){
+    //     try{
+    //         servicio.actualizarFechaDevolucion(id, fecha_devolucion);
+    //         return ResponseEntity.noContent().build();
+    //     }
+    //     catch(FechaDevolucionException e){
+    //         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e);
+    //     } catch (PrestamoNotFoundException e) {
+    //         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
+    //     }
+    // }
 
 /************************************************************************
 ************************************************************************

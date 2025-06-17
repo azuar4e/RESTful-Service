@@ -87,19 +87,7 @@ public class ClienteApplication {
 		servicio.getPrestamos(0, 3);
 
 		System.out.println("Obtenemos los prestamos de un usuario");
-		servicio.getPrestamosUsuario("1");
-
-		System.out.println("Obtener el prestamo con matricula e isbn");
-		servicio.getPrestamosMatriculaIsbn("1", "1");
-
-		System.out.println("Obtenemos el prestamo por fecha de prestamo");
-		servicio.getPrestamosPorFechaPrestamo("1", LocalDate.now());
-		
-		System.out.println("Obtenemos el prestamo por fecha de devolucion");
-		servicio.getPrestamosPorFechaDevolucion("1", LocalDate.now().plusWeeks(1));
-
-		System.out.println("Obtenemos el prestamo por fecha de devolucion y prestamo");
-		servicio.getPrestamosPorFechaDevolucionPorFechaPrestamos("1", LocalDate.now(), LocalDate.now().plusWeeks(1));
+		servicio.getPrestamosUsuario("1", null, null, false, 0, 3);
 
 		System.out.println("Devolvemos un libro\n\t\\________Verificar la uri: http://localhost:8080/biblioteca.api/prestamos/1");
 		servicio.putPrestamoDevolverLibro(1);
@@ -119,19 +107,29 @@ public class ClienteApplication {
 		System.out.println("En la anterior consulta se deberia poner el numero de libros por devolver"
 		+ " del usuario a 0, la devolucion del prestamo a true y y una sancion de 1 semana al usuario a partir de ahora");
 
-		System.out.println("Actualizamos la fecha de devolucion (1 semana mas) del prestamo con id 2" +
-		"\n\t\\________Verificar la uri: http://localhost:8080/biblioteca.api/prestamos/2");
-		servicio.putActualizarDevolucion(2, fechaDevolucion.plusWeeks(2));
-
-		// solo queda actividad y deletes segun mis cuentas
-		System.out.println("Obtenemos los ultimos libros devueltos por un usuario");
-		servicio.getUltimosLibrosDevueltos("1");
+		System.out.println("Obtenemos los prestamos de un usuario");
+		servicio.getPrestamosUsuario("1", null, null ,false, 0, 3);
 
 		System.out.println("Obtenemos los prestamos de un usuario");
-		servicio.getPrestamosUsuario("1");
+		servicio.getPrestamosUsuario("2", null, null ,false, 0, 3);
+
+		System.out.println("Obtenemos los prestamos por fecha de prestamo");
+		servicio.getPrestamosUsuario("1", LocalDate.now(), null, false, 0, 3);
+
+		System.out.println("Obtenemos los prestamos por fecha de devolucion");
+		servicio.getPrestamosUsuario("1", null, LocalDate.now(), false, 0, 3);		
+
+		System.out.println("Obtenemos los prestamos entre fechas");
+		servicio.getPrestamosUsuario("1", LocalDate.now(), LocalDate.now().plusWeeks(2),false, 0, 3);		
+
+		System.out.println("Obtenemos los prestamos devueltos");
+		servicio.getPrestamosUsuario("1", null, null, true, 0, 3);		
 
 		System.out.println("Obtenemos la actividad de un usuario");
 		servicio.getActividadUsuarioLink("1");
+
+		System.out.println("Hacemos un aumento de plazo de prestamo");
+		servicio.ampliarPrestamo("1",2);
 
 		// System.out.println("Borramos los libros");
 		// servicio.deleteLibro("1");
@@ -145,5 +143,7 @@ public class ClienteApplication {
 
 		// System.out.println("Borramos el usuario");
 		// servicio.deleteUsuario("1");
+
+		
 	}
 }

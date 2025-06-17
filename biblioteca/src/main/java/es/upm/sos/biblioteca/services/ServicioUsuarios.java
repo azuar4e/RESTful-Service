@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoConflictException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.FechaDevolucionException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundContentException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.CorreoRegistradoException;
@@ -18,6 +19,7 @@ import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioConflictException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioNotFoundException;
 import es.upm.sos.biblioteca.models.Usuario;
 import es.upm.sos.biblioteca.models.Prestamo;
+import es.upm.sos.biblioteca.models.Libro;
 import es.upm.sos.biblioteca.repository.PrestamosRepository;
 import es.upm.sos.biblioteca.repository.UsuariosRepository;
 import jakarta.transaction.Transactional;
@@ -56,6 +58,13 @@ public class ServicioUsuarios{
 
         if (prestamos.isEmpty()) { throw new PrestamoNotFoundException(null, matricula, null); }
 
+        return prestamos;
+    }
+
+    public Page<Prestamo> getHistorico(String matricula, boolean devuelto, int page, int size) {
+        Pageable paginable = PageRequest.of(page, size);
+        Page<Prestamo> prestamos = repository.findByPrestamosUsuarioMatriculaDevuelto(matricula, devuelto, paginable);
+        if (prestamos == null) { throw new PrestamoNotFoundContentException(matricula, null, null); }
         return prestamos;
     }
 
@@ -128,6 +137,24 @@ public class ServicioUsuarios{
         if(error){
             throw new PrestamoNotFoundException(id, null, null);
         }
+    }
+
+    //ampliar un prestamo del usuario
+    public Prestamo ampliarPrestamo(String matricula, int idprestamo){
+        
+        if (!repository.existsByMatricula(matricula)) { throw new UsuarioNotFoundException(matricula);  }
+        Prestamo prestamo = repository.findPrestamoByIdAndUsuarioMatricula(idprestamo,matricula);
+        if (prestamo==null){
+            throw new PrestamoNotFoundException(idprestamo, matricula, null);
+        }
+        LocalDate antigua = prestamo.getFecha_devolucion();
+        LocalDate hoy = LocalDate.now();
+        
+        if(antigua.isBefore(hoy)){ throw new FechaDevolucionException(hoy,antigua);}
+
+        prestamo.setFecha_devolucion(antigua.plusWeeks(2));
+        repositoryprestamos.save(prestamo);
+        return prestamo;
     }
 
 

@@ -56,6 +56,12 @@ public class ServicioPrestamos{
       return prestamo.get();
     }
 
+    public Page<Prestamo> getPrestamosActuales(String matricula, int page, int size) {
+      Pageable paginable = PageRequest.of(page, size);
+      Page<Prestamo> prestamos = repository.getPrestamosActuales(matricula, paginable);
+      if (prestamos == null) { throw new PrestamoNotFoundContentException(matricula, null, null); }
+      return prestamos;
+    }
 
     public Page<Prestamo> getUltimosLibrosDevueltos(String matricula, int page, int size) {
       Usuario usuario = userRepo.findByMatricula(matricula);
@@ -67,29 +73,22 @@ public class ServicioPrestamos{
       return prestamos;
     }
 
-    public Page<Prestamo> getPrestamosActuales(String matricula, int page, int size) {
-      Pageable paginable = PageRequest.of(page, size);
-      Page<Prestamo> prestamos = repository.getPrestamosActuales(matricula, paginable);
-      if (prestamos == null) { throw new PrestamoNotFoundContentException(matricula, null, null); }
-      return prestamos;
-    }
+    // @Transactional
+    // public void actualizarFechaDevolucion(int id, LocalDate fecha_devolucion) {
 
-    @Transactional
-    public void actualizarFechaDevolucion(int id, LocalDate fecha_devolucion) {
+    //   Optional<Prestamo> prestamo = repository.findById(id);
+    //   if (!prestamo.isPresent()) { throw new PrestamoNotFoundException((Integer) id, null, null); }
 
-      Optional<Prestamo> prestamo = repository.findById(id);
-      if (!prestamo.isPresent()) { throw new PrestamoNotFoundException((Integer) id, null, null); }
+    //   LocalDate fechaActual = LocalDate.now();
+    //   LocalDate fechaDevolucionActual = repository.findById(id).get().getFecha_devolucion();
 
-      LocalDate fechaActual = LocalDate.now();
-      LocalDate fechaDevolucionActual = repository.findById(id).get().getFecha_devolucion();
+    //   if (fechaActual.isAfter(fechaDevolucionActual)) {
+    //     throw new FechaDevolucionException(fechaActual, fechaDevolucionActual);
+    //   }
 
-      if (fechaActual.isAfter(fechaDevolucionActual)) {
-        throw new FechaDevolucionException(fechaActual, fechaDevolucionActual);
-      }
-
-      prestamo.get().setFecha_devolucion(fecha_devolucion);
-      repository.save(prestamo.get());
-    }
+    //   prestamo.get().setFecha_devolucion(fecha_devolucion);
+    //   repository.save(prestamo.get());
+    // }
 
     @Transactional
     public void postPrestamo(Prestamo prestamo) {

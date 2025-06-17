@@ -43,13 +43,13 @@ public class LibrosController {
 
     @GetMapping(params = "titulo_contiene")
     public ResponseEntity<Object>  getLibrosContenido(
-                    @RequestParam String tituloContiene, 
+                    @RequestParam("titulo_contiene") String titulo_contiene, 
                     @RequestParam(defaultValue = "0", required = false) int page,
                     @RequestParam(defaultValue = "3", required = false) int size) {
         //devuelve los libros que contengan en su titulo el parametro dicho
         
         try{
-            Page<Libro> libros = servicio.getLibrosContenido(tituloContiene,page,size);
+            Page<Libro> libros = servicio.getLibrosContenido(titulo_contiene,page,size);
             return new ResponseEntity<>(pagedResourcesAssembler.toModel(libros, libroModelAssembler),HttpStatus.OK);
         }
          catch(LibroNotFoundContentException e){

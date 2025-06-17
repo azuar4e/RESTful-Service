@@ -17,9 +17,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import es.upm.sos.biblioteca.models.Prestamo;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundContentException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.CorreoRegistradoException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioConflictException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioNotFoundException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.FechaDevolucionException;
 import es.upm.sos.biblioteca.models.UsuarioModelAssembler;
 import es.upm.sos.biblioteca.models.PrestamoModelAssembler;
 import es.upm.sos.biblioteca.models.Usuario;
@@ -78,8 +80,6 @@ public class UsuariosController {
         }
     }
 
-    
-
     @GetMapping("/{matricula}/actividad")
     public ResponseEntity<Object> getUsuarioActividad(@PathVariable String matricula){
         try{
@@ -101,7 +101,6 @@ public class UsuariosController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
         }
     }
-
 
     @PostMapping
     public ResponseEntity<?> añadirUsuario(@RequestBody Usuario usuario){ 
@@ -143,25 +142,24 @@ public class UsuariosController {
         }
     }
 
+    @GetMapping("/{matricula}/prestamos")
+    public ResponseEntity<Object> getPrestamosPorFecha(
+        @PathVariable String matricula,
+        @RequestParam(required = false) Boolean devuelto,
+        @RequestParam(required = false) LocalDate fecha_prestamo,
+        @RequestParam(required = false) LocalDate fecha_devolucion,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "3") int size) {
 
-
-/* GETS PRESTAMOS MATRICULA A MODIFICAR*/
-
-
-
-
-
-
-        @GetMapping("/{matricula}/prestamos")
-        public ResponseEntity<Object> getPrestamosPorFecha(
-            @PathVariable String matricula,
-            @RequestParam(required = false) LocalDate fecha_prestamo,
-            @RequestParam(required = false) LocalDate fecha_devolucion,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "3") int size) {
-
-            try {
-                //sin ningun tipo de filtrado
+        try {
+            //sin ningun tipo de filtrado
+            if (devuelto != null) {
+                Page prestamos = servicioUsuarios.getHistorico(matricula,devuelto, page,size);
+                if (prestamos == null) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontraron préstamos del user " + matricula);
+                }
+                return new ResponseEntity<>(prestamoResourcesAssembler.toModel(prestamos, prestamoModelAssembler),HttpStatus.OK);
+            } else {
                 if (fecha_prestamo == null && fecha_devolucion == null) {
                     Page prestamos = servicioUsuarios.getPrestamosMatricula(matricula, page, size);
                     if (prestamos == null) {
@@ -170,33 +168,51 @@ public class UsuariosController {
                     return new ResponseEntity<>(prestamoResourcesAssembler.toModel(prestamos, prestamoModelAssembler),HttpStatus.OK);
                 
                 } else {
-                
-                //filtrado de ambas fechas
-                if (fecha_prestamo != null && fecha_devolucion != null) {
-                     Page prestamos = servicioUsuarios.getPrestamosPorDobleFiltrado(matricula,fecha_prestamo,fecha_devolucion,page,size);
-                    return new ResponseEntity<>(prestamoResourcesAssembler.toModel(prestamos, prestamoModelAssembler),HttpStatus.OK);
+                    if (fecha_prestamo != null && fecha_devolucion != null) {
+                        Page prestamos = servicioUsuarios.getPrestamosPorDobleFiltrado(matricula,fecha_prestamo,fecha_devolucion,page,size);
+                        return new ResponseEntity<>(prestamoResourcesAssembler.toModel(prestamos, prestamoModelAssembler),HttpStatus.OK);
 
-                
-                //filtrado solo inicio prestamo
-                } else if (fecha_prestamo != null && fecha_devolucion==null) {
-                    Page prestamos = servicioUsuarios.getPrestamosPorFechaPrestamo(matricula, fecha_prestamo, page, size);
-                    return new ResponseEntity<>(prestamoResourcesAssembler.toModel(prestamos, prestamoModelAssembler),HttpStatus.OK);
-                
-                //filtrado solo fecha devolucion
-                } else if(fecha_prestamo == null && fecha_devolucion!=null){
-                    Page prestamos = servicioUsuarios.getPrestamosPorFechaDevolucion(matricula, fecha_devolucion, page, size);
-                    return new ResponseEntity<>(prestamoResourcesAssembler.toModel(prestamos, prestamoModelAssembler),HttpStatus.OK);
-                 
+                    
+                    //filtrado solo inicio prestamo
+                    } else if (fecha_prestamo != null && fecha_devolucion==null) {
+                        Page prestamos = servicioUsuarios.getPrestamosPorFechaPrestamo(matricula, fecha_prestamo, page, size);
+                        return new ResponseEntity<>(prestamoResourcesAssembler.toModel(prestamos, prestamoModelAssembler),HttpStatus.OK);
+                    
+                    //filtrado solo fecha devolucion
+                    } else if(fecha_prestamo == null && fecha_devolucion!=null){
+                        Page prestamos = servicioUsuarios.getPrestamosPorFechaDevolucion(matricula, fecha_devolucion, page, size);
+                        return new ResponseEntity<>(prestamoResourcesAssembler.toModel(prestamos, prestamoModelAssembler),HttpStatus.OK);
+                        
+                    } else{
+                        return ResponseEntity.badRequest().body("Parámetros inválidos.");
+                    }
                 }
-                else{
-                    return ResponseEntity.badRequest().body("Parámetros inválidos.");
-                }
-            }
-            
+            }            
+        
         } catch (UsuarioNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
 
+    }
+
+    @PutMapping("/{matricula}/prestamos/{idprestamo}/ampliar")
+    public ResponseEntity<Object> actualizarPrestamo(
+        @PathVariable String matricula,
+        @PathVariable int idprestamo
+    ){
+        try{
+        Prestamo nuevo = servicioUsuarios.ampliarPrestamo(matricula,idprestamo);
+        return ResponseEntity.noContent().build();
+
+
+
+        }catch(UsuarioNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }catch(PrestamoNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }catch(FechaDevolucionException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
     
 }

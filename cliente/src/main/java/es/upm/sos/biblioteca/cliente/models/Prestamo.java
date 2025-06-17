@@ -14,7 +14,7 @@ public class Prestamo {
     private int id;
     private Usuario usuario;
     private Libro libro;
-    private LocalDate fecha_frestamo;
+    private LocalDate fecha_prestamo;
     private LocalDate fecha_devolucion;
     private boolean devuelto;
     private boolean verificarDevolucion;

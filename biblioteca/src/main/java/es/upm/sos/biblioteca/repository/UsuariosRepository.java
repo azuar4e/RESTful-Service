@@ -25,6 +25,9 @@ public interface UsuariosRepository extends JpaRepository<Usuario, String> {
     @Query("SELECT p FROM Prestamo p WHERE p.usuario.matricula = :matricula")
     Page<Prestamo> findByPrestamosUsuarioMatricula(@Param("matricula") String matricula, org.springframework.data.domain.Pageable pageable);
 
+    @Query("SELECT p FROM Prestamo p WHERE p.usuario.matricula = :matricula AND p.devuelto = :devuelto")
+    Page<Prestamo> findByPrestamosUsuarioMatriculaDevuelto(@Param("matricula") String matricula, @Param("devuelto") boolean devuelto, org.springframework.data.domain.Pageable pageable);
+
     @Query("SELECT p FROM Prestamo p WHERE p.usuario.matricula = :matricula AND p.fecha_prestamo = :fecha_prestamo")
     Page<Prestamo> findByPrestamosUsuarioMatriculaAndFechaPrestamo(
         @Param("matricula") String matricula, 
@@ -50,5 +53,13 @@ public interface UsuariosRepository extends JpaRepository<Usuario, String> {
     
     Usuario findByMatricula(String matricula);
 
-    void deleteByMatricula(String matricula);    
+    void deleteByMatricula(String matricula);   
+
+//buscar un prestamo con su id que perteneza al usuario con matricula 
+    @Query("SELECT p FROM Prestamo p WHERE p.id = :id AND p.usuario.matricula = :matricula")
+Prestamo findPrestamoByIdAndUsuarioMatricula(
+    @Param("id") int id, 
+    @Param("matricula") String matricula
+);
+ 
 }	
