@@ -142,7 +142,7 @@ public class ServicioUsuarios{
     //ampliar un prestamo del usuario
     public Prestamo ampliarPrestamo(String matricula, int idprestamo){
         
-        if (!repository.existsByMatricula(matricula)) { throw new UsuarioNotFoundException(matricula);  }
+        if (!repository.existsByMatricula(matricula)) { throw new UsuarioNotFoundException(matricula); }
         Prestamo prestamo = repository.findPrestamoByIdAndUsuarioMatricula(idprestamo,matricula);
         if (prestamo==null){
             throw new PrestamoNotFoundException(idprestamo, matricula, null);

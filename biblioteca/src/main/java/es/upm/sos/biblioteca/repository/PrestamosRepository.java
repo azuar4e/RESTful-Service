@@ -33,4 +33,6 @@ public interface PrestamosRepository extends JpaRepository<Prestamo, Integer> {
     Page<Prestamo> getUltimosLibrosDevueltos(@Param("matricula") String matricula, Pageable pageable);
 
     Prestamo findByLibroIsbn(String isbn);
+
+    
 }

@@ -40,4 +40,7 @@ public class Prestamo extends RepresentationModel<Prestamo> {
 
     @Column(columnDefinition = "boolean default false")
     private boolean verificarDevolucion;
+
+    @Column(name = "ampliar", columnDefinition = "boolean default false")
+    private boolean ampliar;
 }

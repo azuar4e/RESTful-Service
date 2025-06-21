@@ -64,4 +64,28 @@ public class PrestamosExcepciones {
     ErrorMessage PrestamoDevueltoException(PrestamoDevueltoException ex) {
         return new ErrorMessage(ex.getMessage());
     }
+
+    @ExceptionHandler(PrestamoFechaPrestamoNoCoincideException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    ErrorMessage PrestamoFechaPrestamoNoCoincideException(PrestamoFechaPrestamoNoCoincideException ex) {
+        return new ErrorMessage(ex.getMessage());
+    }
+
+    @ExceptionHandler(PrestamoFechaDevolucionNoCoincideException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    ErrorMessage PrestamoFechaDevolucionNoCoincideException(PrestamoFechaDevolucionNoCoincideException ex) {
+        return new ErrorMessage(ex.getMessage());
+    }
+
+    @ExceptionHandler(UsuarioNoCoincideException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    ErrorMessage UsuarioNoCoincideException(UsuarioNoCoincideException ex) {
+        return new ErrorMessage(ex.getMessage());
+    }
+
+    @ExceptionHandler(LibroNoCoincideException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    ErrorMessage LibroNoCoincideException(LibroNoCoincideException ex) {
+        return new ErrorMessage(ex.getMessage());
+    }
 }

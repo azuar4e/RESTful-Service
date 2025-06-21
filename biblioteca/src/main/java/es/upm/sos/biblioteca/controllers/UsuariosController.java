@@ -195,24 +195,21 @@ public class UsuariosController {
 
     }
 
-    @PutMapping("/{matricula}/prestamos/{idprestamo}/ampliar")
+    @PutMapping("/{matricula}/prestamos/{idprestamo}")
     public ResponseEntity<Object> actualizarPrestamo(
         @PathVariable String matricula,
-        @PathVariable int idprestamo
-    ){
+        @PathVariable int idprestamo,
+        @Valid @RequestBody Prestamo prestamo
+    ){  //si ampliar = false bad request
+        if(!prestamo.isAmpliar()){ return ResponseEntity.badRequest().build(); }
+        
         try{
-        Prestamo nuevo = servicioUsuarios.ampliarPrestamo(matricula,idprestamo);
-        return ResponseEntity.noContent().build();
-
-
-
-        }catch(UsuarioNotFoundException e){
+            servicioUsuarios.ampliarPrestamo(matricula, idprestamo);
+            return ResponseEntity.noContent().build();
+        } catch(UsuarioNotFoundException | PrestamoNotFoundException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }catch(PrestamoNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }catch(FechaDevolucionException e){
+        } catch(FechaDevolucionException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-    
 }

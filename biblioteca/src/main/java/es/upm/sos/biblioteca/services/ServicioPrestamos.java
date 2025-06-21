@@ -1,6 +1,7 @@
 package es.upm.sos.biblioteca.services;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+
 import lombok.*;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoVerificadoException;
@@ -31,6 +33,11 @@ import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioNotFoundException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import es.upm.sos.biblioteca.Excepciones.Prestamos.LibroNoCoincideException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoFechaDevolucionNoCoincideException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoFechaPrestamoNoCoincideException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.UsuarioNoCoincideException;
 
 @Service
 @AllArgsConstructor
@@ -93,14 +100,15 @@ public class ServicioPrestamos{
     @Transactional
     public void postPrestamo(Prestamo prestamo) {
       Libro libro = repoLibro.findByIsbn(prestamo.getLibro().getIsbn());
+      Usuario usuario = userrepo.getUsuario(prestamo.getUsuario().getMatricula());
       int cantidad = libro.getDisponibles();
       logger.info("Servicio postPrestamo");
       Optional<Prestamo> prestamoExistente = repository.findById(prestamo.getId());
       logger.info("Cantidad: "+cantidad);
       if (prestamoExistente.isPresent()) { throw new PrestamoConflictException(prestamo.getId()); }
       if(cantidad == 0) { throw new LibroNoDisponibleException(libro.getIsbn()); }
-      if (prestamo.getUsuario().getPorDevolver() != 0) { throw new UsuarioDevolucionesPendientesException(prestamo.getUsuario().getMatricula()); }
-      if (prestamo.getUsuario().getSancion() != null) { throw new UsuarioSancionadoException(prestamo.getUsuario().getMatricula()); } 
+      if (usuario.getPorDevolver() != 0) { throw new UsuarioDevolucionesPendientesException(prestamo.getUsuario().getMatricula()); }
+      if (usuario.getSancion() != null) { throw new UsuarioSancionadoException(prestamo.getUsuario().getMatricula()); } 
       if(prestamo.getFecha_devolucion().isBefore(prestamo.getFecha_prestamo())) { throw new FechasNoValidasException(prestamo.getFecha_prestamo(), prestamo.getFecha_devolucion()); }
       libro.setDisponibles(cantidad-1);
       logger.info("Cantidad: "+ libro.getDisponibles());
@@ -108,15 +116,32 @@ public class ServicioPrestamos{
       repository.save(prestamo);
     }
 
+
     @Transactional
-    public void devolverLibro(int id) {
+    public void devolverLibro(int id, Prestamo pr) {
 
       Optional<Prestamo> prestamo = repository.findById(id);
       if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
       if (prestamo.get().isDevuelto()) { throw new PrestamoDevueltoException(id); }
 
+      if (!Objects.equals(pr.getFecha_prestamo(), prestamo.get().getFecha_prestamo())) {
+          throw new PrestamoFechaPrestamoNoCoincideException(id, pr.getFecha_prestamo(), prestamo.get().getFecha_prestamo());
+      }
+
+      if (!Objects.equals(pr.getFecha_devolucion(), prestamo.get().getFecha_devolucion())) {
+          throw new PrestamoFechaDevolucionNoCoincideException(id, pr.getFecha_devolucion(), prestamo.get().getFecha_devolucion());
+      }
+
+      if (!Objects.equals(pr.getUsuario().getMatricula(), prestamo.get().getUsuario().getMatricula())) {
+          throw new UsuarioNoCoincideException(id, pr.getUsuario().getMatricula(), prestamo.get().getUsuario().getMatricula());
+      }
+
+      if (!Objects.equals(pr.getLibro().getIsbn(), prestamo.get().getLibro().getIsbn())) {
+          throw new LibroNoCoincideException(id, pr.getLibro().getIsbn(), prestamo.get().getLibro().getIsbn());
+      }
+
       if (prestamo.get().getFecha_devolucion().isBefore(LocalDate.now()) && !prestamo.get().isDevuelto()) {
-        if (!prestamo.get().isVerificarDevolucion()) { verificarDevolucion(id); }
+        if (!prestamo.get().isVerificarDevolucion()) { verificarDevolucion(id, pr); }
         Usuario user = userrepo.getUsuario(prestamo.get().getUsuario().getMatricula());
         user.setPorDevolver(user.getPorDevolver() - 1);
 
@@ -127,6 +152,7 @@ public class ServicioPrestamos{
         
         userrepo.save(user);
       }
+
       Libro libro = prestamo.get().getLibro();
       libro.setDisponibles(libro.getDisponibles()+1);
       prestamo.get().setDevuelto(true);
@@ -134,10 +160,26 @@ public class ServicioPrestamos{
       repository.save(prestamo.get());
     }
 
+
     @Transactional
-    public void verificarDevolucion(int id) {
+    public void verificarDevolucion(int id, Prestamo pr) {
       Optional<Prestamo> prestamo = repository.findById(id);
       if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
+      if (!Objects.equals(pr.getFecha_prestamo(), prestamo.get().getFecha_prestamo())) {
+          throw new PrestamoFechaPrestamoNoCoincideException(id, pr.getFecha_prestamo(), prestamo.get().getFecha_prestamo());
+      }
+
+      if (!Objects.equals(pr.getFecha_devolucion(), prestamo.get().getFecha_devolucion())) {
+          throw new PrestamoFechaDevolucionNoCoincideException(id, pr.getFecha_devolucion(), prestamo.get().getFecha_devolucion());
+      }
+
+      if (!Objects.equals(pr.getUsuario().getMatricula(), prestamo.get().getUsuario().getMatricula())) {
+          throw new UsuarioNoCoincideException(id, pr.getUsuario().getMatricula(), prestamo.get().getUsuario().getMatricula());
+      }
+
+      if (!Objects.equals(pr.getLibro().getIsbn(), prestamo.get().getLibro().getIsbn())) {
+          throw new LibroNoCoincideException(id, pr.getLibro().getIsbn(), prestamo.get().getLibro().getIsbn());
+      }
 
       if (prestamo.get().getFecha_devolucion().isBefore(LocalDate.now()) 
         && !prestamo.get().isDevuelto() && !prestamo.get().isVerificarDevolucion()) {

@@ -1,22 +1,16 @@
 package es.upm.sos.biblioteca.controllers;
 
-
-import java.util.*;
-import java.time.LocalDate;
-
-import es.upm.sos.biblioteca.Excepciones.Prestamos.FechaDevolucionException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.FechasNoValidasException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.LibroNoDisponibleException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoConflictException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoDevueltoException;
-import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundContentException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoVerificadoException;
-import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioNotFoundException;
-
+import es.upm.sos.biblioteca.Excepciones.Prestamos.UsuarioDevolucionesPendientesException;
 import es.upm.sos.biblioteca.models.Prestamo;
 import es.upm.sos.biblioteca.models.PrestamoModelAssembler;
 import es.upm.sos.biblioteca.services.ServicioPrestamos;
+import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -32,9 +26,11 @@ import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
-
+import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoFechaDevolucionNoCoincideException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoFechaPrestamoNoCoincideException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.UsuarioNoCoincideException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.UsuarioSancionadoException;
+import es.upm.sos.biblioteca.Excepciones.Prestamos.LibroNoCoincideException;
 
 @RestController
 @RequestMapping("/biblioteca.api/prestamos")
@@ -63,48 +59,38 @@ public class PrestamosController {
         }
     }
     
-/************************************************************************
-************************************************************************
-*************************************************************************/
-    // @PutMapping("/{id}/actualizar-devolucion")
-    // public ResponseEntity<Object> actualizarFechaDevolucion(@PathVariable int id, @RequestParam LocalDate fecha_devolucion){
-    //     try{
-    //         servicio.actualizarFechaDevolucion(id, fecha_devolucion);
-    //         return ResponseEntity.noContent().build();
-    //     }
-    //     catch(FechaDevolucionException e){
-    //         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e);
-    //     } catch (PrestamoNotFoundException e) {
-    //         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
-    //     }
-    // }
 
-/************************************************************************
-************************************************************************
-*************************************************************************/
-    @PutMapping("/{id}/devolucion")
-    public ResponseEntity<Object> devolverLibro(@PathVariable int id){
-        try{
-            servicio.devolverLibro(id);
-            return ResponseEntity.noContent().build();
-        }
-        catch (PrestamoNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
-        } catch (PrestamoDevueltoException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e);
-        }
-    }
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> devolverLibro_verificarDevolucion(@PathVariable int id, @Valid @RequestBody Prestamo prestamo){
 
-    @PutMapping("/{id}/verificar-devolucion")
-    public ResponseEntity<Object> verificarDevolucion(@PathVariable int id){
-        try{
-            servicio.verificarDevolucion(id);
-            return ResponseEntity.noContent().build();
-        }
-        catch(PrestamoVerificadoException e){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e);
-        } catch (PrestamoNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
+        if(prestamo.isDevuelto()){
+            //parte a devolver
+            try{
+                servicio.devolverLibro(id, prestamo);
+                return ResponseEntity.noContent().build();
+            }
+            catch (PrestamoVerificadoException e) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e);
+            } catch (PrestamoDevueltoException e) {
+             return ResponseEntity.status(HttpStatus.CONFLICT).body(e);
+            } catch (PrestamoFechaPrestamoNoCoincideException | PrestamoFechaDevolucionNoCoincideException | UsuarioNoCoincideException | LibroNoCoincideException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e);
+            }
+
+        } else{
+            //parte de verificar devolucion
+            try{
+                servicio.verificarDevolucion(id, prestamo);
+                return ResponseEntity.noContent().build();
+            }
+            catch(PrestamoVerificadoException e){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e);
+            } catch (PrestamoNotFoundException e) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
+            } catch (PrestamoFechaPrestamoNoCoincideException | PrestamoFechaDevolucionNoCoincideException | UsuarioNoCoincideException | LibroNoCoincideException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e);
+            }
+
         }
     }
 
@@ -133,8 +119,8 @@ public class PrestamosController {
         }
         catch (FechasNoValidasException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());  
-        } catch (LibroNoDisponibleException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());  
+        } catch (LibroNoDisponibleException |UsuarioSancionadoException | UsuarioDevolucionesPendientesException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         }
     }
 }
