@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import org.springframework.http.HttpStatusCode;
@@ -48,6 +50,8 @@ public class BibliotecaService {
             String selfLink = user.get_links().getFirstHref();
             System.out.println("Usuario con matricula: "+user.getMatricula()+ 
             " y correo: "+user.getCorreo() + " se encuentra disponible en el link: "+ selfLink);
+        } else {
+            System.out.println("Usuario no encontrado");
         }
     }
 
@@ -71,6 +75,8 @@ public class BibliotecaService {
         if (usuarios != null) {
             String selfLink = usuarios.get_links().getFirstHref();
             System.out.println("Los usuarios se encuentran disponibles en el link: " + selfLink);
+        } else {
+            System.out.println("No se encontraron usuarios");
         }
     }
     
@@ -91,12 +97,14 @@ public class BibliotecaService {
             String selfLink = libro.get_links().getFirstHref();
             System.out.println("Libro con isbn: "+libro.getIsbn()+ 
             " y nombre: "+ libro.getTitulo() + " se encuentra disponible en el link: "+ selfLink);
+        } else {
+            System.out.println("Libro no encontrado");
         }
     }
 
     public void getLibros(int page, int size) {
         Libro libros = webClient.get()
-            .uri(uriBuilder -> uriBuilder.path("/prestamos")
+            .uri(uriBuilder -> uriBuilder.path("/libros")
                 .queryParam("page", page)
                 .queryParam("size", size)
                 .build())
@@ -113,6 +121,8 @@ public class BibliotecaService {
         if (libros != null) {
             String selfLink = libros.get_links().getFirstHref();
             System.out.println("Los libros se encuentran disponibles en el link: " + selfLink);
+        } else {
+            System.out.println("No se encontraron libros");
         }
     }
     
@@ -131,6 +141,8 @@ public class BibliotecaService {
             String selfLink = prestamo.get_links().getFirstHref();
             System.out.println("prestamo con id: "+prestamo.getId()+ 
             " se encuentra disponible en el link: " + selfLink);
+        } else {
+            System.out.println("Prestamo no encontrado");
         }
     }
 
@@ -153,19 +165,21 @@ public class BibliotecaService {
         if (prestamos != null) {
             String selfLink = prestamos.get_links().getFirstHref();
             System.out.println("Los prestamos se encuentran disponibles en el link: " + selfLink);
+        } else {
+            System.out.println("No se encontraron prestamos");
         }
     }
 
-      public void postUsuario(String matricula, String nombre, String correo,
-    String fechaNacimiento, LocalDate sancion, int porDevolver) {
+    public void postUsuario(String matricula, String nombre, String correo,
+        String fechaNacimiento, LocalDate sancion, int porDevolver) {
 
         Usuario user = new Usuario();
         user.setMatricula(matricula);
         user.setNombre(nombre);
         user.setCorreo(correo);
-        user.setFechaNacimiento(fechaNacimiento);
+        user.setFecha_nacimiento(fechaNacimiento);
         user.setSancion(sancion);
-        user.setPorDevolver(porDevolver);
+        user.setPor_devolver(porDevolver);
 
         try {
             String referencia = webClient.post()
@@ -194,8 +208,8 @@ public class BibliotecaService {
         }
     }
     
-    public void postPrestamo(Usuario user, Libro libro, LocalDate fechaPrestamo,
-    LocalDate fechaDevolucion, boolean devuelto, boolean verificarDevolucion) {
+    public int postPrestamo(Usuario user, Libro libro, LocalDate fechaPrestamo,
+    LocalDate fechaDevolucion, boolean devuelto, boolean verificarDevolucion, boolean ampliar) {
 
         Prestamo prestamo = new Prestamo();
         prestamo.setUsuario(user);
@@ -203,7 +217,8 @@ public class BibliotecaService {
         prestamo.setFecha_prestamo(fechaPrestamo);
         prestamo.setFecha_devolucion(fechaDevolucion);
         prestamo.setDevuelto(devuelto);
-        prestamo.setVerificarDevolucion(verificarDevolucion);
+        prestamo.setVerificar_devolucion(verificarDevolucion);
+        prestamo.setAmpliar(ampliar);
 
         try {
             String referencia = webClient.post()
@@ -226,10 +241,14 @@ public class BibliotecaService {
 
             if (referencia != null) {
                 System.out.println(referencia);
+                String[] partes = referencia.split("/");
+                return Integer.parseInt(partes[partes.length - 1]);
             }
+            return -1;
         } catch (RuntimeException e) {
             System.err.println("Error: "+e.getMessage());
-        }        
+            return -1;
+        }
     }
 
     public void postLibro(String isbn, String titulo, String autores, String edicion, String editorial, int unidades, int disponibles) {
@@ -275,9 +294,9 @@ public class BibliotecaService {
         user.setMatricula(matricula);
         user.setNombre(nombre);
         user.setCorreo(correo);
-        user.setFechaNacimiento(fechaNacimiento);
+        user.setFecha_nacimiento(fechaNacimiento);
         user.setSancion(sancion);
-        user.setPorDevolver(porDevolver);
+        user.setPor_devolver(porDevolver);
         webClient.put()
         .uri("/users/{matricula}", matricula)
         .contentType(MediaType.APPLICATION_JSON)
@@ -317,18 +336,19 @@ public class BibliotecaService {
     }
 
     public void putPrestamo(int id, Usuario user, Libro libro, LocalDate fechaPrestamo,
-    LocalDate fechaDevolucion, boolean devuelto, boolean verificarDevolucion){
+    LocalDate fechaDevolucion, boolean devuelto, boolean verificarDevolucion, boolean ampliar){
         Prestamo prestamo = new Prestamo();
         prestamo.setUsuario(user);
         prestamo.setLibro(libro);
         prestamo.setFecha_prestamo(fechaPrestamo);
         prestamo.setFecha_devolucion(fechaDevolucion);
         prestamo.setDevuelto(devuelto);
-        prestamo.setVerificarDevolucion(verificarDevolucion);
+        prestamo.setVerificar_devolucion(verificarDevolucion);
+        prestamo.setAmpliar(ampliar);
         webClient.put()
         .uri("/prestamos/{id}", id)
         .contentType(MediaType.APPLICATION_JSON)
-        .body(Mono.just(user),Usuario.class)
+        .body(Mono.just(prestamo),Prestamo.class)
         .retrieve()
         .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class)
         .doOnNext(body -> System.err.println("Error 4xx: " + body)).then(Mono.empty())
@@ -347,7 +367,9 @@ public class BibliotecaService {
         .doOnNext(body -> System.err.println("Error 4xx: " + body))
         .then(Mono.empty()))
         .toBodilessEntity()
-        .block();        
+        .block();
+
+        System.out.println("El Libro con isbn " + isbn + " ha sido eliminado.");
     }
 
     public void deletePrestamo(int id) {
@@ -358,7 +380,9 @@ public class BibliotecaService {
         .doOnNext(body -> System.err.println("Error 4xx: " + body))
         .then(Mono.empty()))
         .toBodilessEntity()
-        .block();        
+        .block();
+
+        System.out.println("El Préstamo con id " + id + " ha sido eliminado.");
     }
 
     public void deleteUsuario(String matricula) {
@@ -370,46 +394,47 @@ public class BibliotecaService {
         .then(Mono.empty()))
         .toBodilessEntity()
         .block();
+
+        System.out.println("El Usuario con matricula " + matricula + " ha sido eliminado.");
     }
 
     //______________________________________________________________________________________________________________
     // metodos auxiliares
 
     public void getPrestamosUsuario(String matricula, LocalDate fechaPrestamo, LocalDate fechaDevolucion, boolean devuelto, int page, int size) {
-    // StringBuilder uri = new StringBuilder("/usuarios/{matricula}/prestamos?page=" + page + "&size=" + size);
 
-    Prestamo prestamo = webClient.get()
+        Prestamo prestamo = webClient.get()
         .uri(uriBuilder -> uriBuilder
-            .path("/users/{matricula}/prestamos")
-            .queryParam("devuelto", devuelto)
-            .queryParam("fecha_prestamo", fechaPrestamo)
-            .queryParam("fecha_devolucion", fechaDevolucion)
-            .queryParam("page", page)
-            .queryParam("size", size)
-            .build(matricula))
+                .path("/users/{matricula}/prestamos")
+                .queryParam("devuelto", devuelto)
+                .queryParam("fecha_prestamo", fechaPrestamo)
+                .queryParam("fecha_devolucion", fechaDevolucion)
+                .queryParam("page", page)
+                .queryParam("size", size)
+                .build(matricula))
         .retrieve()
-        .onStatus(HttpStatusCode::is4xxClientError, response ->
-            response.bodyToMono(String.class)
-                .doOnNext(body -> System.err.println("Error 4xx: " + body))
-                .then(Mono.empty())
-        )
-        .onStatus(HttpStatusCode::is5xxServerError, response ->
-            response.bodyToMono(String.class)
-                .doOnNext(body -> System.err.println("Error 5xx: " + body))
-                .then(Mono.empty())
-        )
+        .onStatus(HttpStatus.NOT_FOUND::equals, response -> {
+            System.err.println("Usuario no encontrado: " + matricula);
+            return Mono.error(new RuntimeException("Usuario con matricula " + matricula + " no encontrado"));
+        })
         .bodyToMono(Prestamo.class)
+        .onErrorResume(e -> {
+            System.err.println("Error al obtener préstamos: " + e.getMessage());
+            return Mono.empty(); // Devolvemos vacío en caso de error
+        })
         .block();
 
-       if (prestamo != null) {
-        String selfLink = prestamo.get_links().getFirstHref();
-        System.out.println("Los prestamos se encuentran en: "+selfLink);
+        if (prestamo != null) {
+            String selfLink = prestamo.get_links().getFirstHref();
+            System.out.println("Los prestamos se encuentran en: "+selfLink);
+        } else {
+            System.out.println("No se encontraron prestamos para el usuario con matricula: " + matricula);
+        }
     }
-}
 
     public void getPorTitulo(String titulo){
             Libro libro = webClient.get()
-            .uri("/libros?tituloContiene={titulo}", titulo)
+            .uri("/libros?titulo_contiene={titulo}", titulo)
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class)
             .doOnNext(body -> System.err.println("Error 4xx: " + body)).then(Mono.empty())
@@ -424,49 +449,9 @@ public class BibliotecaService {
             String selfLink = libro.get_links().getFirstHref();
             System.out.println("Los libros que contienen \'" + titulo + 
             "\' en el titulo se encuentran disponibles en el link: " + selfLink);
+        } else {
+            System.out.println("No se encontraron libros que contienen el titulo: " + titulo);
         }
-    }
-
-    public void putActualizarDevolucion(int id, LocalDate fechaDevolucion){
-        webClient.put().uri("/prestamos/{id}/actualizar-devolucion?fechaDevolucion={fechaDevolucion}",id, fechaDevolucion)
-            .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class)
-                .doOnNext(body -> System.err.println("Error 4xx: " + body))
-                .then(Mono.empty()))
-            .onStatus(HttpStatusCode::is5xxServerError, response -> response.bodyToMono(String.class)
-                .doOnNext(body -> System.err.println("Error 5xx: " + body))
-                .then(Mono.empty()))
-            .toBodilessEntity()
-            .block();
-    }
-
-    
-    public void putPrestamoDevolverLibro(int id) {
-        webClient.put()
-            .uri("/prestamos/{id}/devolucion", id)
-            .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class)
-                .doOnNext(body -> System.err.println("Error 4xx: " + body))
-                .then(Mono.empty()))
-            .onStatus(HttpStatusCode::is5xxServerError, response -> response.bodyToMono(String.class)
-                .doOnNext(body -> System.err.println("Error 5xx: " + body))
-                .then(Mono.empty()))
-            .toBodilessEntity()
-            .block();
-    }
-    
-    public void putVerificarDevolucion(int id) {
-        webClient.put()
-            .uri("/prestamos/{id}/verificar-devolucion", id)
-            .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class)
-                .doOnNext(body -> System.err.println("Error 4xx: " + body))
-                .then(Mono.empty()))
-            .onStatus(HttpStatusCode::is5xxServerError, response -> response.bodyToMono(String.class)
-                .doOnNext(body -> System.err.println("Error 5xx: " + body))
-                .then(Mono.empty()))
-            .toBodilessEntity()
-            .block();
     }
 
     public void getActividadUsuarioLink(String matricula) {
@@ -491,7 +476,7 @@ public class BibliotecaService {
         }
     }
 
-       //Get de libro
+    //Get de libro
     public Integer getLibroUnidades(String isbn){
         return webClient.get().uri("/libros/{isbn}/unidades",isbn).retrieve()
         .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class)
@@ -505,22 +490,28 @@ public class BibliotecaService {
 
     }
 
-    public Prestamo ampliarPrestamo(String matricula, int idPrestamo) {
-        Prestamo prestamo = webClient.put()
-            .uri("/users/{matricula}/prestamos/{id}/ampliar", matricula, idPrestamo)
-            .contentType(MediaType.APPLICATION_JSON)
-            .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class)
-                .doOnNext(body -> System.err.println("Error 4xx: " + body))
-                .then(Mono.empty()))
-            .onStatus(HttpStatusCode::is5xxServerError, response -> response.bodyToMono(String.class)
-                .doOnNext(body -> System.err.println("Error 5xx: " + body))
-                .then(Mono.empty()))
-            .bodyToMono(Prestamo.class)
-            .block();
+    public void putAmpliarPrestamo(int id, Usuario user, Libro libro, LocalDate fechaPrestamo,
+    LocalDate fechaDevolucion, boolean devuelto, boolean verificarDevolucion, boolean ampliar){
+        Prestamo prestamo = new Prestamo();
+        prestamo.setUsuario(user);
+        prestamo.setLibro(libro);
+        prestamo.setFecha_prestamo(fechaPrestamo);
+        prestamo.setFecha_devolucion(fechaDevolucion);
+        prestamo.setDevuelto(devuelto);
+        prestamo.setVerificar_devolucion(verificarDevolucion);
+        prestamo.setAmpliar(ampliar);
 
-        System.out.println("Préstamo ampliado con éxito.");
-        return prestamo;
-    }
-    
+        webClient.put()
+        .uri("/users/{matricula}/prestamos/{id}", user.getMatricula(), id)
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(Mono.just(prestamo),Prestamo.class)
+        .retrieve()
+        .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class)
+        .doOnNext(body -> System.err.println("Error 4xx: " + body)).then(Mono.empty())
+        )
+        .onStatus(HttpStatusCode::is5xxServerError,response -> response.bodyToMono(String.class)
+        .doOnNext(body -> System.err.println("Error 5xx"+body)).then(Mono.empty())
+        ).toBodilessEntity()
+        .block();
+    }  
 }

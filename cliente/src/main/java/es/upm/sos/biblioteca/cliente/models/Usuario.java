@@ -14,9 +14,9 @@ public class Usuario {
     private String matricula;
     private String nombre;
     private String correo;
-    private String fechaNacimiento;
+    private String fecha_nacimiento;
     private LocalDate sancion;
-    private int porDevolver;
+    private int por_devolver;
     private List<Prestamo> prestamos;
     @JsonProperty("_links")
     private ResourceLink _links;

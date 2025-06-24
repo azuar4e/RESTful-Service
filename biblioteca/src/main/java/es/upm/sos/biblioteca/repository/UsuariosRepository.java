@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
+import java.util.Optional;
 
 
 public interface UsuariosRepository extends JpaRepository<Usuario, String> {
@@ -57,9 +58,5 @@ public interface UsuariosRepository extends JpaRepository<Usuario, String> {
 
 //buscar un prestamo con su id que perteneza al usuario con matricula 
     @Query("SELECT p FROM Prestamo p WHERE p.id = :id AND p.usuario.matricula = :matricula")
-Prestamo findPrestamoByIdAndUsuarioMatricula(
-    @Param("id") int id, 
-    @Param("matricula") String matricula
-);
- 
-}	
+    Optional<Prestamo> findPrestamoByIdAndUsuarioMatricula(@Param("id") int id, @Param("matricula") String matricula);
+}

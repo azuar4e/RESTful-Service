@@ -69,8 +69,8 @@ public class PrestamosController {
                 servicio.devolverLibro(id, prestamo);
                 return ResponseEntity.noContent().build();
             }
-            catch (PrestamoVerificadoException e) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e);
+            catch (PrestamoNotFoundException e) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
             } catch (PrestamoDevueltoException e) {
              return ResponseEntity.status(HttpStatus.CONFLICT).body(e);
             } catch (PrestamoFechaPrestamoNoCoincideException | PrestamoFechaDevolucionNoCoincideException | UsuarioNoCoincideException | LibroNoCoincideException e) {
@@ -84,7 +84,7 @@ public class PrestamosController {
                 return ResponseEntity.noContent().build();
             }
             catch(PrestamoVerificadoException e){
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e);
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(e);
             } catch (PrestamoNotFoundException e) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e);
             } catch (PrestamoFechaPrestamoNoCoincideException | PrestamoFechaDevolucionNoCoincideException | UsuarioNoCoincideException | LibroNoCoincideException e) {
@@ -119,7 +119,7 @@ public class PrestamosController {
         }
         catch (FechasNoValidasException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());  
-        } catch (LibroNoDisponibleException |UsuarioSancionadoException | UsuarioDevolucionesPendientesException e) {
+        } catch (LibroNoDisponibleException | UsuarioSancionadoException | UsuarioDevolucionesPendientesException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         }
     }

@@ -58,7 +58,7 @@ public class ServicioPrestamos{
     public Prestamo getPrestamoId(int id) {
       Optional<Prestamo> prestamo = repository.findById(id);
 
-      if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
+      if (prestamo.isEmpty()) { throw new PrestamoNotFoundException(id, null, null); }
 
       return prestamo.get();
     }
@@ -80,23 +80,6 @@ public class ServicioPrestamos{
       return prestamos;
     }
 
-    // @Transactional
-    // public void actualizarFechaDevolucion(int id, LocalDate fecha_devolucion) {
-
-    //   Optional<Prestamo> prestamo = repository.findById(id);
-    //   if (!prestamo.isPresent()) { throw new PrestamoNotFoundException((Integer) id, null, null); }
-
-    //   LocalDate fechaActual = LocalDate.now();
-    //   LocalDate fechaDevolucionActual = repository.findById(id).get().getFecha_devolucion();
-
-    //   if (fechaActual.isAfter(fechaDevolucionActual)) {
-    //     throw new FechaDevolucionException(fechaActual, fechaDevolucionActual);
-    //   }
-
-    //   prestamo.get().setFecha_devolucion(fecha_devolucion);
-    //   repository.save(prestamo.get());
-    // }
-
     @Transactional
     public void postPrestamo(Prestamo prestamo) {
       Libro libro = repoLibro.findByIsbn(prestamo.getLibro().getIsbn());
@@ -107,7 +90,7 @@ public class ServicioPrestamos{
       logger.info("Cantidad: "+cantidad);
       if (prestamoExistente.isPresent()) { throw new PrestamoConflictException(prestamo.getId()); }
       if(cantidad == 0) { throw new LibroNoDisponibleException(libro.getIsbn()); }
-      if (usuario.getPorDevolver() != 0) { throw new UsuarioDevolucionesPendientesException(prestamo.getUsuario().getMatricula()); }
+      if (usuario.getPor_devolver() != 0) { throw new UsuarioDevolucionesPendientesException(prestamo.getUsuario().getMatricula()); }
       if (usuario.getSancion() != null) { throw new UsuarioSancionadoException(prestamo.getUsuario().getMatricula()); } 
       if(prestamo.getFecha_devolucion().isBefore(prestamo.getFecha_prestamo())) { throw new FechasNoValidasException(prestamo.getFecha_prestamo(), prestamo.getFecha_devolucion()); }
       libro.setDisponibles(cantidad-1);
@@ -116,12 +99,11 @@ public class ServicioPrestamos{
       repository.save(prestamo);
     }
 
-
     @Transactional
     public void devolverLibro(int id, Prestamo pr) {
 
       Optional<Prestamo> prestamo = repository.findById(id);
-      if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
+      if (prestamo.isEmpty()) { throw new PrestamoNotFoundException(id, null, null); }
       if (prestamo.get().isDevuelto()) { throw new PrestamoDevueltoException(id); }
 
       if (!Objects.equals(pr.getFecha_prestamo(), prestamo.get().getFecha_prestamo())) {
@@ -141,11 +123,11 @@ public class ServicioPrestamos{
       }
 
       if (prestamo.get().getFecha_devolucion().isBefore(LocalDate.now()) && !prestamo.get().isDevuelto()) {
-        if (!prestamo.get().isVerificarDevolucion()) { verificarDevolucion(id, pr); }
+        if (!prestamo.get().isVerificar_devolucion()) { verificarDevolucion(id, pr); }
         Usuario user = userrepo.getUsuario(prestamo.get().getUsuario().getMatricula());
-        user.setPorDevolver(user.getPorDevolver() - 1);
+        user.setPor_devolver(user.getPor_devolver() - 1);
 
-        if (user.getPorDevolver() == 0) {
+        if (user.getPor_devolver() == 0) {
           LocalDate sancion = LocalDate.now().plusWeeks(1);
           user.setSancion(sancion);
         }
@@ -164,7 +146,7 @@ public class ServicioPrestamos{
     @Transactional
     public void verificarDevolucion(int id, Prestamo pr) {
       Optional<Prestamo> prestamo = repository.findById(id);
-      if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
+      if (prestamo.isEmpty()) { throw new PrestamoNotFoundException(id, null, null); }
       if (!Objects.equals(pr.getFecha_prestamo(), prestamo.get().getFecha_prestamo())) {
           throw new PrestamoFechaPrestamoNoCoincideException(id, pr.getFecha_prestamo(), prestamo.get().getFecha_prestamo());
       }
@@ -182,11 +164,11 @@ public class ServicioPrestamos{
       }
 
       if (prestamo.get().getFecha_devolucion().isBefore(LocalDate.now()) 
-        && !prestamo.get().isDevuelto() && !prestamo.get().isVerificarDevolucion()) {
+        && !prestamo.get().isDevuelto() && !prestamo.get().isVerificar_devolucion()) {
 
-        prestamo.get().setVerificarDevolucion(true);
+        prestamo.get().setVerificar_devolucion(true);
         Usuario user = userrepo.getUsuario(prestamo.get().getUsuario().getMatricula());
-        user.setPorDevolver(user.getPorDevolver() + 1);
+        user.setPor_devolver(user.getPor_devolver() + 1);
         userrepo.save(user);
         repository.save(prestamo.get());
       } else { throw new PrestamoVerificadoException(id); }
@@ -196,7 +178,7 @@ public class ServicioPrestamos{
     @Transactional
     public void deletePrestamo(int id) {
       Optional<Prestamo> prestamo = repository.findById(id);
-      if (!prestamo.isPresent()) { throw new PrestamoNotFoundException(id, null, null); }
+      if (prestamo.isEmpty()) { throw new PrestamoNotFoundException(id, null, null); }
       Usuario usuario = prestamo.get().getUsuario();
       if (usuario != null) {
         usuario.getPrestamos().remove(prestamo.get()); 

@@ -53,40 +53,34 @@ public class ServicioUsuarios{
     }
 
     public Page<Prestamo> getPrestamosMatricula(String matricula, int page, int size){
+        if (!repository.existsByMatricula( matricula)) {throw new UsuarioNotFoundException(matricula);}
+
         Pageable paginable = PageRequest.of(page, size);
-        Page<Prestamo> prestamos = repository.findByPrestamosUsuarioMatricula(matricula, paginable);
-
-        if (prestamos.isEmpty()) { throw new PrestamoNotFoundException(null, matricula, null); }
-
-        return prestamos;
+        return repository.findByPrestamosUsuarioMatricula(matricula, paginable);
     }
 
     public Page<Prestamo> getHistorico(String matricula, boolean devuelto, int page, int size) {
+        if (!repository.existsByMatricula( matricula)) {throw new UsuarioNotFoundException(matricula);}
         Pageable paginable = PageRequest.of(page, size);
-        Page<Prestamo> prestamos = repository.findByPrestamosUsuarioMatriculaDevuelto(matricula, devuelto, paginable);
-        if (prestamos == null) { throw new PrestamoNotFoundContentException(matricula, null, null); }
-        return prestamos;
+        return repository.findByPrestamosUsuarioMatriculaDevuelto(matricula, devuelto, paginable);
     }
 
     public Page<Prestamo> getPrestamosPorFechaPrestamo(String matricula, LocalDate fecha_prestamo, int page, int size) {
-      Pageable paginable = PageRequest.of(page, size);
-      Page<Prestamo> prestamos = repository.findByPrestamosUsuarioMatriculaAndFechaPrestamo(matricula, fecha_prestamo, paginable);
-      if (prestamos.isEmpty()) { throw new PrestamoNotFoundContentException(matricula, fecha_prestamo, null); }
-      return prestamos;
+        if (!repository.existsByMatricula( matricula)) {throw new UsuarioNotFoundException(matricula);}
+        Pageable paginable = PageRequest.of(page, size);
+        return repository.findByPrestamosUsuarioMatriculaAndFechaPrestamo(matricula, fecha_prestamo, paginable);
     }
 
     public Page<Prestamo> getPrestamosPorFechaDevolucion(String matricula, LocalDate fecha_devolucion, int page, int size) {
-      Pageable paginable = PageRequest.of(page, size);
-      Page<Prestamo> prestamos = repository.findByPrestamosUsuarioMatriculaAndFechaDevolucion(matricula, fecha_devolucion, paginable);
-      if (prestamos.isEmpty()) { throw new PrestamoNotFoundContentException(matricula, null, fecha_devolucion); }
-      return prestamos;
+        if (!repository.existsByMatricula( matricula)) {throw new UsuarioNotFoundException(matricula);}
+        Pageable paginable = PageRequest.of(page, size);
+        return repository.findByPrestamosUsuarioMatriculaAndFechaDevolucion(matricula, fecha_devolucion, paginable);
     }
 
     public Page<Prestamo> getPrestamosPorDobleFiltrado(String matricula, LocalDate fecha_prestamo, LocalDate fecha_devolucion, int page, int size) {
-      Pageable paginable = PageRequest.of(page, size);
-      Page<Prestamo> prestamos = repository.findByPrestamosUsuarioMatriculaAndFechaPrestamoAndFechaDevolucion(matricula, fecha_prestamo, fecha_devolucion, paginable);
-      if (prestamos.isEmpty()) { throw new PrestamoNotFoundContentException(matricula, fecha_prestamo, fecha_devolucion); }
-      return prestamos;
+        if (!repository.existsByMatricula( matricula)) {throw new UsuarioNotFoundException(matricula);}
+        Pageable paginable = PageRequest.of(page, size);
+        return repository.findByPrestamosUsuarioMatriculaAndFechaPrestamoAndFechaDevolucion(matricula, fecha_prestamo, fecha_devolucion, paginable);
     }
 
     
@@ -105,7 +99,7 @@ public class ServicioUsuarios{
             Usuario usuario = repository.findByMatricula(matricula);
             usuario.setNombre(usuarioNuevo.getNombre());
             usuario.setCorreo(usuarioNuevo.getCorreo());
-            usuario.setFechaNacimiento(usuarioNuevo.getFechaNacimiento());
+            usuario.setFecha_nacimiento(usuarioNuevo.getFecha_nacimiento());
             usuario.setSancion(usuarioNuevo.getSancion());
 
             return repository.save(usuario);
@@ -140,21 +134,21 @@ public class ServicioUsuarios{
     }
 
     //ampliar un prestamo del usuario
-    public Prestamo ampliarPrestamo(String matricula, int idprestamo){
+    public Prestamo ampliarPrestamo(String matricula, int id){
         
         if (!repository.existsByMatricula(matricula)) { throw new UsuarioNotFoundException(matricula); }
-        Prestamo prestamo = repository.findPrestamoByIdAndUsuarioMatricula(idprestamo,matricula);
-        if (prestamo==null){
-            throw new PrestamoNotFoundException(idprestamo, matricula, null);
-        }
-        LocalDate antigua = prestamo.getFecha_devolucion();
+
+        Optional<Prestamo> prestamo = repository.findPrestamoByIdAndUsuarioMatricula(id,matricula);
+        if (prestamo.isEmpty()){ throw new PrestamoNotFoundException(id, matricula, null); }
+
+        LocalDate antigua = prestamo.get().getFecha_devolucion();
         LocalDate hoy = LocalDate.now();
         
         if(antigua.isBefore(hoy)){ throw new FechaDevolucionException(hoy,antigua);}
 
-        prestamo.setFecha_devolucion(antigua.plusWeeks(2));
-        repositoryprestamos.save(prestamo);
-        return prestamo;
+        prestamo.get().setFecha_devolucion(antigua.plusWeeks(2));
+        repositoryprestamos.save(prestamo.get());
+        return prestamo.get();
     }
 
 

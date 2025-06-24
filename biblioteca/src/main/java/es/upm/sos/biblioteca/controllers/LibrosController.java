@@ -35,7 +35,7 @@ public class LibrosController {
             //formato para la respuesta con paginas y el assembler
             //pagedResourcesAssembler hace que se le pasen linnks de paginas
             //toModel(libros,libroModelAssembler) añade a los libros de la pagina su autoreferencia
-    return ResponseEntity.ok(pagedResourcesAssembler.toModel(libros, libroModelAssembler));
+            return ResponseEntity.ok(pagedResourcesAssembler.toModel(libros, libroModelAssembler));
         }
     
     

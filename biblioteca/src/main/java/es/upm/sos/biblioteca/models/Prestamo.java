@@ -39,7 +39,7 @@ public class Prestamo extends RepresentationModel<Prestamo> {
     private boolean devuelto;
 
     @Column(columnDefinition = "boolean default false")
-    private boolean verificarDevolucion;
+    private boolean verificar_devolucion;
 
     @Column(name = "ampliar", columnDefinition = "boolean default false")
     private boolean ampliar;

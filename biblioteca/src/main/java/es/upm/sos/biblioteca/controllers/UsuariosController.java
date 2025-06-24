@@ -45,11 +45,11 @@ public class UsuariosController {
         private String matricula;
         private String nombre;
         private String correo;
-        private String fechaNacimiento;
+        private String fecha_nacimiento;
         private LocalDate sancion;
-        private int porDevolver;
-        private Page<Prestamo> prestamosActuales;
-        private Page<Prestamo> historialPrestamos;
+        private int por_devolver;
+        private Page<Prestamo> prestamos_actuales;
+        private Page<Prestamo> historial_prestamos;
     }
 
     private ServicioUsuarios servicioUsuarios;
@@ -87,11 +87,11 @@ public class UsuariosController {
             ActividadUsuario actividadUsuario = new ActividadUsuario(matricula, null, null, null, null, 0, null, null);
             actividadUsuario.setNombre(usuario.getNombre());
             actividadUsuario.setCorreo(usuario.getCorreo());
-            actividadUsuario.setFechaNacimiento(usuario.getFechaNacimiento());
+            actividadUsuario.setFecha_nacimiento(usuario.getFecha_nacimiento());
             actividadUsuario.setSancion(usuario.getSancion());
-            actividadUsuario.setPorDevolver(usuario.getPorDevolver());
-            actividadUsuario.setPrestamosActuales(servicioPrestamos.getPrestamosActuales(matricula, 0, 5));
-            actividadUsuario.setHistorialPrestamos(servicioPrestamos.getUltimosLibrosDevueltos(matricula, 0, 5));
+            actividadUsuario.setPor_devolver(usuario.getPor_devolver());
+            actividadUsuario.setPrestamos_actuales(servicioPrestamos.getPrestamosActuales(matricula, 0, 5));
+            actividadUsuario.setHistorial_prestamos(servicioPrestamos.getUltimosLibrosDevueltos(matricula, 0, 5));
             EntityModel<ActividadUsuario> respuesta = EntityModel.of(actividadUsuario);
 
             respuesta.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UsuariosController.class).getUsuarioActividad(matricula)).withSelfRel());
@@ -155,16 +155,10 @@ public class UsuariosController {
             //sin ningun tipo de filtrado
             if (devuelto != null) {
                 Page prestamos = servicioUsuarios.getHistorico(matricula,devuelto, page,size);
-                if (prestamos == null) {
-                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontraron préstamos del user " + matricula);
-                }
                 return new ResponseEntity<>(prestamoResourcesAssembler.toModel(prestamos, prestamoModelAssembler),HttpStatus.OK);
             } else {
                 if (fecha_prestamo == null && fecha_devolucion == null) {
                     Page prestamos = servicioUsuarios.getPrestamosMatricula(matricula, page, size);
-                    if (prestamos == null) {
-                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontraron préstamos del user " + matricula);
-                    }
                     return new ResponseEntity<>(prestamoResourcesAssembler.toModel(prestamos, prestamoModelAssembler),HttpStatus.OK);
                 
                 } else {
@@ -187,12 +181,10 @@ public class UsuariosController {
                         return ResponseEntity.badRequest().body("Parámetros inválidos.");
                     }
                 }
-            }            
-        
+            }
         } catch (UsuarioNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-
     }
 
     @PutMapping("/{matricula}/prestamos/{idprestamo}")

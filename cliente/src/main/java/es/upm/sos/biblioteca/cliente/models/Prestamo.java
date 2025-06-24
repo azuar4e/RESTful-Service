@@ -17,7 +17,8 @@ public class Prestamo {
     private LocalDate fecha_prestamo;
     private LocalDate fecha_devolucion;
     private boolean devuelto;
-    private boolean verificarDevolucion;
+    private boolean verificar_devolucion;
+    private boolean ampliar;
     @JsonProperty("_links")
     private ResourceLink _links;
 }

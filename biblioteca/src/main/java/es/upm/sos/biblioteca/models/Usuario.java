@@ -27,7 +27,7 @@ public class Usuario extends RepresentationModel<Usuario>{
     private String correo;
 
     @Column(name="fecha_nacimiento", nullable = false)
-    private String fechaNacimiento;
+    private String fecha_nacimiento;
 
     @Column(columnDefinition = "date default null")
     private LocalDate sancion;
@@ -36,7 +36,7 @@ public class Usuario extends RepresentationModel<Usuario>{
     //mirar si hay libros por devolver para conceder un prestamo
     //y sancionar 1 semanilla en el momento en el que devuelva todos los libros
     @Column(columnDefinition = "integer default 0")
-    private int porDevolver;
+    private int por_devolver;
 
     @OneToMany(mappedBy = "usuario")
     @JsonManagedReference

@@ -36,7 +36,7 @@ public class PrestamosExcepciones {
     }
 
     @ExceptionHandler(PrestamoVerificadoException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.CONFLICT)
     ErrorMessage PrestamoVerificadoException(PrestamoVerificadoException ex) {
         return new ErrorMessage(ex.getMessage());
     }
