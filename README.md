@@ -17,3 +17,7 @@ The service provides basic functionality for managing a library of books. In the
 
 
 ### How it works
+
+To run the project we have to options:
+
+- Using **docker**: Since we hace a Dockerfile and a `docker-compose.yaml` we can launch it using `docker compose up -d` (or without `-d` flag). This will create two containers, one for the backend of the aplication, accesible from port `8080`, and other for the postgres database. 
