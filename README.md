@@ -9,7 +9,7 @@ It was developed as part of the **Service-Oriented Systems** course in the Compu
 
 ## Description
 
-The service provides basic functionality for managing a library of books. In the following image we can see the entity-relation model:
+The service provides basic functionality for managing a library of books. In the following image we can see the entity-relationship model:
 
 <img width="826" height="1001" alt="image" src="https://github.com/user-attachments/assets/933e59f2-9290-4941-aa90-eb90dd8a35fb" />
 
