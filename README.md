@@ -1,9 +1,15 @@
-# Servicio-RESTful
+# Introduction
 
-Implementación de un servicio RESTful en Java con el uso de Spring y Maven para la asignatura de Sistemas Orientados a Servicios (SOS) de la carrera de Ingeniería Informática.
+This project implements a RESTful web service in Java using the Spring Framework and Maven.  
+It was developed as part of the **Service-Oriented Systems** course in the Computer Science degree.
+
+> ⚠️ Note: Since the course is taught in Spanish, all source code, directories, and documentation are in Spanish.
 
 ---
 
-## Descripción
+## Description
 
-El servicio RESTful implementado en este repositorio permite la gestión de una biblioteca de libros.
+The service provides basic functionality for managing a library of books (add, list, update, delete).
+
+
+<img width="826" height="1001" alt="image" src="https://github.com/user-attachments/assets/933e59f2-9290-4941-aa90-eb90dd8a35fb" />
