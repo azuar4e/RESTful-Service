@@ -91,7 +91,7 @@ public class ClienteApplication {
 		
 		System.out.println("\n\n[+] PUT sobre un usuario");
 		System.out.println("\t\\________Actualizamos usario");
-		servicio.putUsuario("1", "Ana", "correo1@correo.com", "1990-01-02", null, 1);
+		servicio.putUsuario("1", "Ana", "manolo@risas.com", "1990-01-02", null, 0);
 		System.out.println("\n\n[+] PUT sobre un libro");
 		System.out.println("\t\\________Actualizamos libro");
 		servicio.putLibro("1","Harry Maguire y el viaje a Osasuna","Harry Maguire", "1", "1", 2, 2);
