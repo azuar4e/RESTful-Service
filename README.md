@@ -1,4 +1,4 @@
-# Introduction
+# Library Management REST API
 
 This project implements a RESTful web service (REST API) in Java using the Spring Framework and Maven.  
 It was developed as part of the **Service-Oriented Systems** course in the Computer Science degree.
@@ -7,7 +7,7 @@ It was developed as part of the **Service-Oriented Systems** course in the Compu
 
 ---
 
-## Description
+## Overview
 
 The service provides basic functionality for managing a library of books. In the following image we can see the entity-relationship model:
 
