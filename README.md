@@ -49,7 +49,7 @@ The root URL of the service is `http://localhost:8080/biblioteca.api/`, and the 
 - `PUT /users/{matricula}`
 - `DELETE /users/{matricula}`
 
-All endpoints follow standard RESTful CRUD operations (`GET`, `POST`, `PUT`, `DELETE`).
+All endpoints follow standard RESTful CRUD operations (`Create`, `Read`, `Update`, `Delete`).
 
 ---
 
