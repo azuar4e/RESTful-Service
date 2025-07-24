@@ -5,6 +5,11 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.*;
+import jakarta.transaction.Transactional;
+import lombok.*;
 
 import es.upm.sos.biblioteca.models.Libro;
 import es.upm.sos.biblioteca.models.Prestamo;
@@ -12,17 +17,9 @@ import es.upm.sos.biblioteca.models.Usuario;
 import es.upm.sos.biblioteca.repository.LibrosRepository;
 import es.upm.sos.biblioteca.repository.PrestamosRepository;
 import es.upm.sos.biblioteca.repository.UsuariosRepository;
-import jakarta.transaction.Transactional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
-
-import lombok.*;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoVerificadoException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoNotFoundContentException;
-import es.upm.sos.biblioteca.Excepciones.Libros.LibroNotFoundException;
-import es.upm.sos.biblioteca.Excepciones.Prestamos.FechaDevolucionException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.FechasNoValidasException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoConflictException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.LibroNoDisponibleException;
@@ -30,10 +27,6 @@ import es.upm.sos.biblioteca.Excepciones.Prestamos.UsuarioDevolucionesPendientes
 import es.upm.sos.biblioteca.Excepciones.Prestamos.UsuarioSancionadoException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoDevueltoException;
 import es.upm.sos.biblioteca.Excepciones.Usuarios.UsuarioNotFoundException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import es.upm.sos.biblioteca.Excepciones.Prestamos.LibroNoCoincideException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoFechaDevolucionNoCoincideException;
 import es.upm.sos.biblioteca.Excepciones.Prestamos.PrestamoFechaPrestamoNoCoincideException;
@@ -46,9 +39,6 @@ public class ServicioPrestamos{
     private final LibrosRepository repoLibro;
     private final UsuariosRepository userRepo;
     private static final Logger logger = LoggerFactory.getLogger(ServicioPrestamos.class);
-
-    @Autowired
-    private UsuariosRepository userrepo;
 
     public Page<Prestamo> getPrestamos(int page, int size){
     Pageable paginable = PageRequest.of(page, size);
@@ -83,7 +73,7 @@ public class ServicioPrestamos{
     @Transactional
     public void postPrestamo(Prestamo prestamo) {
       Libro libro = repoLibro.findByIsbn(prestamo.getLibro().getIsbn());
-      Usuario usuario = userrepo.getUsuario(prestamo.getUsuario().getMatricula());
+      Usuario usuario = userRepo.getUsuario(prestamo.getUsuario().getMatricula());
       int cantidad = libro.getDisponibles();
       logger.info("Servicio postPrestamo");
       Optional<Prestamo> prestamoExistente = repository.findById(prestamo.getId());
@@ -124,7 +114,7 @@ public class ServicioPrestamos{
 
       if (prestamo.get().getFecha_devolucion().isBefore(LocalDate.now()) && !prestamo.get().isDevuelto()) {
         if (!prestamo.get().isVerificar_devolucion()) { verificarDevolucion(id, pr); }
-        Usuario user = userrepo.getUsuario(prestamo.get().getUsuario().getMatricula());
+        Usuario user = userRepo.getUsuario(prestamo.get().getUsuario().getMatricula());
         user.setPor_devolver(user.getPor_devolver() - 1);
 
         if (user.getPor_devolver() == 0) {
@@ -132,7 +122,7 @@ public class ServicioPrestamos{
           user.setSancion(sancion);
         }
         
-        userrepo.save(user);
+        userRepo.save(user);
       }
 
       Libro libro = prestamo.get().getLibro();
@@ -167,9 +157,9 @@ public class ServicioPrestamos{
         && !prestamo.get().isDevuelto() && !prestamo.get().isVerificar_devolucion()) {
 
         prestamo.get().setVerificar_devolucion(true);
-        Usuario user = userrepo.getUsuario(prestamo.get().getUsuario().getMatricula());
+        Usuario user = userRepo.getUsuario(prestamo.get().getUsuario().getMatricula());
         user.setPor_devolver(user.getPor_devolver() + 1);
-        userrepo.save(user);
+        userRepo.save(user);
         repository.save(prestamo.get());
       } else { throw new PrestamoVerificadoException(id); }
     }
@@ -182,7 +172,7 @@ public class ServicioPrestamos{
       Usuario usuario = prestamo.get().getUsuario();
       if (usuario != null) {
         usuario.getPrestamos().remove(prestamo.get()); 
-        userrepo.save(usuario);
+        userRepo.save(usuario);
       }
       prestamo.get().getLibro().setDisponibles(prestamo.get().getLibro().getDisponibles()+1);
       repoLibro.save(prestamo.get().getLibro());
